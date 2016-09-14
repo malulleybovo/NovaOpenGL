@@ -12,6 +12,7 @@ namespace Nova {
         void Parse(const std::vector<std::string>& paths, int argc, char** argv);
     
         std::string scenepath;
+        std::vector<std::string> pluginpaths;
     };
 }
 

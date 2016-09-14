@@ -7,7 +7,7 @@
 // Done                        //
 
 
-Nova::ShaderManager::ShaderManager()
+Nova::ShaderManager::ShaderManager(ApplicationFactory& app) : _app(app)
 {
     // Need to populate the Built-in Shader maps. 
     // These shaders are compiled in and never change

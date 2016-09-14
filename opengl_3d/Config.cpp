@@ -1,5 +1,6 @@
 #include "Config.h"
 
+#include <boost/assign/list_of.hpp>
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
@@ -23,6 +24,7 @@ Nova::Config::Parse(const std::vector<std::string>& paths, int argc, char** argv
         ("help", "produce help message")
         ("config,c", po::value<std::string>(&config_file), "name of a file of a configuration.")
         ("scenepath,s", po::value<std::string>(&scenepath), "path to the scene to display.")
+        ("pluginpath,p", po::value<std::vector<std::string> >(&pluginpaths)->default_value(std::vector<std::string>(1,"./plugins"),"./plugins"), "path to search for plugins in.")
         ;
     
     // Declare a group of options that will be 
