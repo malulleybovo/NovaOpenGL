@@ -2,7 +2,7 @@
 #define __OPENGL_3D_SCENE_H__
 
 #include <string>
-#include <map>
+#include <vector>
 
 namespace Nova{
     
@@ -13,12 +13,12 @@ namespace Nova{
         Scene(ApplicationFactory& app);
         void Configure(std::string path);
         void Load();
+        void Draw(); // OpenGL calls go here!
         
     private:
         ApplicationFactory& _app;
         std::string _path;
-        std::map< std::string, std::string > _known_extensions;
-
+        std::vector< unsigned long > _scene_objects;
     };
 
 }

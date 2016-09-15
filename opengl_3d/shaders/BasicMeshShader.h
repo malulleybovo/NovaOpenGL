@@ -1,7 +1,8 @@
 namespace NovaBuiltinShaders{
 
     struct BasicMeshShader {
-        static constexpr char const * fragment_shader = R"lang::GLSL(#version 330 core
+        static constexpr char const * fragment_shader = R"lang::GLSL(
+#version 330 core
 in vec2 TexCoord;
 
 out vec4 color;
@@ -14,7 +15,8 @@ void main()
 }
 )lang::GLSL";
 
-        static constexpr char const * vertex_shader = R"lang::GLSL(#version 330 core
+        static constexpr char const * vertex_shader = R"lang::GLSL(
+#version 330 core
 layout (location=0) in vec3 position;
 layout (location=1) in vec3 normal;
 layout (location=2) in vec2 tex_coord;

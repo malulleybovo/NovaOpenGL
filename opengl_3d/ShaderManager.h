@@ -1,7 +1,7 @@
 #ifndef __OPENGL_3D_SHADER_MANAGER_H__
 #define __OPENGL_3D_SHADER_MANAGER_H__
 
-#include <nova/Rendering/OpenGL/Shaders/Shader.h>
+#include "Shader.h"
 #include <map>
 
 namespace Nova {

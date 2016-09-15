@@ -73,7 +73,7 @@ Nova::Scene::Configure( std::string path ){
         std::string extension = entryList[1];                                                               
         std::string plugin = unrecognized_results[i+1];
         std::cout << extension << " : " << plugin << std::endl;
-        _known_extensions.insert( std::make_pair( extension, plugin ) );
+        _app.GetRenderableManager().RegisterExtension( extension, plugin );
     }
 
 
@@ -89,34 +89,29 @@ Nova::Scene::Load()
     
     fs::directory_iterator diter( load_path );
     for( ; diter != fs::directory_iterator(); diter++){
-        if( diter->path().has_extension() ){
-            std::string ext = diter->path().extension().native();
-            ext = ext.substr(1); // Strip leading '.'
-            auto res =  _known_extensions.find( ext );
-            if( res != _known_extensions.end() ){
-                std::cout << "Loading " << diter->path().native() << std::endl;
-                Plugin* plugin = nullptr;
-                try{
-                    plugin = _app.GetPluginManager().Get( res->second );
-                }
-                catch( std::runtime_error e ){
-                    std::cout << "Failed to load plugin for " << diter->path().filename() << std::endl;
-                    std::cout << "Reason: " << e.what() << std::endl;                    
-                }
-                if( plugin ){ // We succeeded on loading the plugin...
-                    try{
-                        Renderable* renderable = plugin->Create();
-                        renderable->load( diter->path().native() );
-                        plugin->Destroy( renderable );
-                    }
-                    catch( std::runtime_error e ){
-                        std::cout << "Failed to load " << diter->path().filename() << std::endl;
-                        std::cout << "Reason: " << e.what() << std::endl;                    
-                    }
-                }
-            }
+        unsigned long objectId = _app.GetRenderableManager().MaxId();
+        try{
+            objectId = _app.GetRenderableManager().RegisterRenderable( diter->path().native() );
+        }
+        catch( std::exception& e ){
+            // We failed to load this particular file, say something about it...
+            //std::cout << "Couldn't load " << diter->path().native() << ", Reason: " << std::endl;
+            //std::cout << e.what() << std::endl;
+        }
+
+        if( objectId != _app.GetRenderableManager().MaxId() ){
+            _scene_objects.push_back( objectId );
+            std::cout << "Loaded " << diter->path().filename() << " with id " << objectId << std::endl;
         }
     }
 
+}
 
+
+void Nova::Scene::Draw()
+{
+    for( auto objectId : _scene_objects ){
+        Renderable* renderable = _app.GetRenderableManager().Get( objectId );
+        renderable->draw();
+    }
 }

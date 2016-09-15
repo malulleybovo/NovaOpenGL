@@ -37,7 +37,7 @@ Nova::Plugin::~Plugin()
 }
 
 Nova::Renderable*
-Nova::Plugin::Create()
+Nova::Plugin::Create(ApplicationFactory& app)
 {
     const char *error;
     dlerror();
@@ -47,7 +47,7 @@ Nova::Plugin::Create()
         throw 2;
     }
     
-    return create_renderable();        
+    return create_renderable(app);        
 }
 
 

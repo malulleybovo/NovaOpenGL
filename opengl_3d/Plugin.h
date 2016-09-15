@@ -12,7 +12,7 @@ namespace Nova {
         Plugin( std::string name, std::string path );
         ~Plugin();
 
-        Renderable* Create();
+        Renderable* Create(ApplicationFactory& app);
         void Destroy( Renderable* renderable );
 
     private:
