@@ -1,7 +1,7 @@
 //#####################################################################
 // Copyright (c) 2016, Mridul Aanjaneya.
 //#####################################################################
-#include "NovaMesh_Model.h"
+#include "AssimpRenderable_Model.h"
 #include <nova/Rendering/OpenGL/Utilities/OpenGL_Utilities.h>
 #include <assimp/postprocess.h>
 #include <iostream>
@@ -9,14 +9,14 @@ using namespace Nova;
 //#####################################################################
 // Constructor
 //#####################################################################
-NovaMesh_Model::
-NovaMesh_Model()
+AssimpRenderable_Model::
+AssimpRenderable_Model()
 {
 }
 //#####################################################################
 // Draw
 //#####################################################################
-void NovaMesh_Model::
+void AssimpRenderable_Model::
 Draw(const Shader& shader)
 {
     shader.Use();
@@ -25,10 +25,10 @@ Draw(const Shader& shader)
 //#####################################################################
 // Load_Model
 //#####################################################################
-void NovaMesh_Model::
+void AssimpRenderable_Model::
 Load_Model(const std::string& path)
 {
-    std::cout << "NovaMesh_Model::Load_Model" << std::endl;
+    std::cout << "AssimpRenderable_Model::Load_Model" << std::endl;
             
     Assimp::Importer importer;
     const aiScene* scene=importer.ReadFile(path,aiProcessPreset_TargetRealtime_MaxQuality);
@@ -49,7 +49,7 @@ Load_Model(const std::string& path)
 //#####################################################################
 // Process_Node
 //#####################################################################
-void NovaMesh_Model::
+void AssimpRenderable_Model::
 Process_Node(aiNode* node,const aiScene* scene)
 {
     // process each mesh located at the current node
@@ -66,7 +66,7 @@ Process_Node(aiNode* node,const aiScene* scene)
 //#####################################################################
 // Process_Mesh
 //#####################################################################
-NovaMesh_Mesh NovaMesh_Model::
+AssimpRenderable_Mesh AssimpRenderable_Model::
 Process_Mesh(aiMesh *mesh,const aiScene *scene)
 {
     std::cout << "Processing mesh" << std::endl;
@@ -126,12 +126,12 @@ Process_Mesh(aiMesh *mesh,const aiScene *scene)
         textures.insert(textures.end(),specular_maps.begin(),specular_maps.end());
     }
 
-    return NovaMesh_Mesh(vertices,indices,textures);
+    return AssimpRenderable_Mesh(vertices,indices,textures);
 }
 //#####################################################################
 // Load_Material_Textures
 //#####################################################################
-void NovaMesh_Model::
+void AssimpRenderable_Model::
 Load_Material_Textures(aiMaterial *material,aiTextureType type,const std::string& type_name,std::vector<Texture>& textures)
 {
     for(GLuint i=0;i<material->GetTextureCount(type);++i)

@@ -1,8 +1,8 @@
-#include "../../Renderable.h"
+#include "../../RenderableManager.h"
 #include "../../ApplicationFactory.h"
 #include "../../Shader.h"
 
-#include "NovaMesh_Model.h"
+#include "AssimpRenderable_Model.h"
 #include "../../shaders/BasicMeshShader.h"
 
 #include <iostream>
@@ -12,26 +12,26 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Nova {
-        
-    class NovaMesh : public Renderable {        
-        std::unique_ptr<NovaMesh_Model> _model;
+
+    class AssimpRenderable : public Renderable {        
+        std::unique_ptr<AssimpRenderable_Model> _model;
         std::unique_ptr<Shader> _shader;
 
     public:
-        NovaMesh( ApplicationFactory& app ) : Renderable( app )
+        AssimpRenderable( ApplicationFactory& app ) : Renderable( app )
         {
-            _model = std::unique_ptr<NovaMesh_Model>( new NovaMesh_Model() );
+            _model = std::unique_ptr<AssimpRenderable_Model>( new AssimpRenderable_Model() );
             _shader = std::unique_ptr<Shader>( new Shader() );
             _shader->LoadFromString(NovaBuiltinShaders::BasicMeshShader::vertex_shader,
                                     NovaBuiltinShaders::BasicMeshShader::fragment_shader);
         }
 
-        virtual ~NovaMesh(){
+        virtual ~AssimpRenderable(){
             
         }
         
         virtual void load(std::string path){
-            std::cout << "NovaMesh::load" << std::endl;            
+            std::cout << "AssimpRenderable::load" << std::endl;            
             _model->Load_Model( path );
         }
 
@@ -50,16 +50,36 @@ namespace Nova {
             glUniformMatrix4fv(model_location,1,GL_FALSE,glm::value_ptr(model));
             _model->Draw(*(_shader.get()));
         }
-        
-
     };
 
+  
+  class AssimpRenderableFactory : public RenderableFactory {
+  public:
+    AssimpRenderableFactory() : RenderableFactory()
+    {}
+    
+    virtual ~AssimpRenderableFactory() {}
+
+    virtual std::unique_ptr<Renderable> Create( ApplicationFactory& app, std::string path ){
+      AssimpRenderable* renderable = new AssimpRenderable(app);
+      renderable->load( path );
+      return std::unique_ptr<Renderable>( renderable );
+    }
+    
+    virtual bool AcceptExtension(std::string ext) const {
+      Assimp::Importer importer;
+      return (importer.GetImporter( ext.c_str() ) != NULL);
+    };
+
+  };
+  
+
 }
 
-extern "C" Nova::Renderable* Nova_CreateRenderable(Nova::ApplicationFactory& app) {
-    return new Nova::NovaMesh(app);
+extern "C" void registerPlugin(Nova::ApplicationFactory& app) {
+  app.GetRenderableManager().AddFactory( std::move( std::unique_ptr<Nova::RenderableFactory>( new Nova::AssimpRenderableFactory() )));
 }
 
-extern "C" void Nova_DestroyRenderable( Nova::Renderable* r) {
-    delete r;
+extern "C" int getEngineVersion() {
+  return Nova::API_VERSION;
 }

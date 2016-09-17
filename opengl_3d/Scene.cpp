@@ -45,11 +45,13 @@ Nova::Scene::Configure( std::string path ){
     _path = path;
 
     fs::path config_path;
-    config_path += path;
-    config_path += "scene.conf";
+    config_path /= path;
+    config_path /= "scene.conf";
 
+    std::vector<std::string> pluginList;
     po::options_description config("Configuration");
     config.add_options()
+      ("Plugin", po::value<std::vector<std::string> >(&pluginList), "a list of plugins to load")
         ;
     
     std::ifstream ifs(config_path.c_str());
@@ -59,24 +61,11 @@ Nova::Scene::Configure( std::string path ){
     po::variables_map vm;
     auto results = parse_config_file(ifs, config, true);
     store( results, vm );
-    std::vector<std::string> unrecognized_results = po::collect_unrecognized( results.options, po::exclude_positional );
     notify(vm);        
 
-    std::cout << "Extension Details: " << std::endl;
-    for( int i = 0; i < unrecognized_results.size(); i+=2){
-        std::vector<std::string> entryList = tokenize( unrecognized_results[i] );
-        
-        std::string key = "extension";
-        if( entryList[0] != key )
-            continue;
-        
-        std::string extension = entryList[1];                                                               
-        std::string plugin = unrecognized_results[i+1];
-        std::cout << extension << " : " << plugin << std::endl;
-        _app.GetRenderableManager().RegisterExtension( extension, plugin );
+    for( auto plugin : pluginList ){
+      _app.GetPluginManager().LoadPlugin( plugin );
     }
-
-
 }
 
 void
@@ -84,7 +73,7 @@ Nova::Scene::Load()
 {
     fs::path load_path;
     load_path /= _path;
-    load_path = fs::canonical(load_path);
+    //load_path = fs::canonical(load_path);
     std::cout << "Loading " << load_path.native() << std::endl;
     
     fs::directory_iterator diter( load_path );

@@ -12,6 +12,9 @@
 
 namespace Nova{
 
+
+    constexpr int API_VERSION = 1;
+  
     class ApplicationFactory {
         public:
             ApplicationFactory( const Config& config );
@@ -22,7 +25,7 @@ namespace Nova{
             RenderableManager& GetRenderableManager();
             Scene&         GetScene();
             World&         GetWorld();
-
+	    
         private:        
             Config _config;
             std::unique_ptr<World> _world;

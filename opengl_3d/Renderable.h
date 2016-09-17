@@ -7,15 +7,7 @@ namespace Nova{
 
     class ApplicationFactory;
 
-    class Renderable {
-    public:
-        Renderable(ApplicationFactory& app) : _app(app) {};
-        virtual ~Renderable() {};
-        virtual void load(std::string path) = 0;
-        virtual void draw() = 0;
-    protected:
-        ApplicationFactory& _app;
-    };
+
 }
 
 

@@ -8,7 +8,7 @@ Nova::ApplicationFactory::ApplicationFactory( const Nova::Config& config ) : _co
     _scene = std::unique_ptr<Scene>( new Scene(*this) );
     _shaderman = std::unique_ptr<ShaderManager>( new ShaderManager(*this) );
     _pluginman = std::unique_ptr<PluginManager>( new PluginManager(*this) );
-    _pluginman->SetSearchPaths( _config.pluginpaths );
+    _pluginman->AppendSearchPaths( _config.pluginpaths );
     _renderableman = std::unique_ptr<RenderableManager>( new RenderableManager(*this) );
 }
 
@@ -35,9 +35,9 @@ Nova::ApplicationFactory::GetWorld()
 void 
 Nova::ApplicationFactory::Run()
 {
-    std::cout << "Loading scene from '" << _config.scenepath << "'" << std::endl; 
-    _scene->Configure( _config.scenepath );
-    _scene->Load();
-    _world->Initialize(800,600);
-    _world->Main_Loop();
+  _world->Initialize(800,600);
+  std::cout << "Loading scene from '" << _config.scenepath << "'" << std::endl; 
+  _scene->Configure( _config.scenepath );
+  _scene->Load();
+  _world->Main_Loop();
 }

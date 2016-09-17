@@ -15,9 +15,10 @@ namespace Nova {
     public:
         PluginManager(ApplicationFactory& app);
 
+	void ClearSearchPaths();
+	void AppendSearchPaths( std::vector<std::string> paths );
         void SetSearchPaths( std::vector<std::string> paths );
-
-        Plugin* Get(std::string name);
+        void LoadPlugin(std::string name);
 
     private:
         ApplicationFactory& _app;

@@ -3,6 +3,7 @@
 #include "Renderable.h"
 #include <exception>
 #include <limits>
+#include <iostream>
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -13,14 +14,6 @@ Nova::RenderableManager::RenderableManager( ApplicationFactory& app ) : _app(app
 }
 
 Nova::RenderableManager::~RenderableManager(){
-    for( auto iter = _resources.begin(); iter != _resources.end(); iter++){
-        RenderableRecord& record = iter->second;
-        if( record.resource != nullptr ){ // Need to clean stuff up...
-            Plugin* plugin = _app.GetPluginManager().Get( record.plugin );
-            plugin->Destroy( record.resource );
-            record.resource = nullptr;            
-        }
-    }
 }
 
 unsigned long
@@ -30,15 +23,9 @@ Nova::RenderableManager::MaxId()
 }
 
 void
-Nova::RenderableManager::RegisterExtension( std::string extension, std::string plugin )
+Nova::RenderableManager::AddFactory( std::unique_ptr<RenderableFactory> factory )
 {
-    auto res = _extmap.find( extension );
-    if( res != _extmap.end() && res->second != plugin ){
-        throw std::runtime_error(std::string("Extension already registered with plugin ") + res->second );
-    }
-    else if( res == _extmap.end() ){
-        _extmap.insert( std::make_pair( extension, plugin ) );        
-    }    
+  _factories.push_back( std::move( factory ) );
 }
 
 unsigned long
@@ -56,23 +43,28 @@ Nova::RenderableManager::RegisterRenderable( std::string path )
     if( renderablePath.has_extension() ){
         std::string ext = renderablePath.extension().native();
         ext = ext.substr(1); // Strip leading '.'
-        auto res =  _extmap.find( ext );
-        if( res != _extmap.end() ){
-            RenderableRecord record;
-            record.path = path;
-            record.resource = nullptr;
-            record.plugin = res->second;
-            unsigned long id = _resource_counter++;
-            _resources.insert( std::make_pair( id, record ) );
-            return id;
-        }
-        else{
-            throw std::runtime_error( std::string("No plugin found to handle file with extension: ") + ext );
-        }
+	std::cout << "Looking for a factory to load a '" << ext << "' file." << std::endl;
+	for( auto& factory : _factories ){
+	  if( factory->AcceptExtension( ext ) )
+	    {
+	      std::unique_ptr<Renderable> renderable;
+	      try{
+		renderable = std::unique_ptr<Renderable>(factory->Create( _app, renderablePath.native()));
+	      }
+	      catch( std::exception& e ){
+		std::cout << "Failed to load renderable: " << e.what() << std::endl;
+	      }
+	      unsigned long renderableId = _resource_counter++;
+	      _resources.insert( std::make_pair( renderableId, std::move( renderable )));
+	      return renderableId;
+	    }
+	}
+	throw std::runtime_error( std::string("Unable to load renderable. No factory available to handle type: ") + ext );
     }
-    else
-        throw std::runtime_error( "Could not register Renderable. No extension found." );
+    else{
+      throw std::runtime_error( "Unable to load renderable. No identifiable extension." );
 
+    }
 }
 
 Nova::Renderable* 
@@ -80,13 +72,7 @@ Nova::RenderableManager::Get( unsigned long id )
 {
     auto res = _resources.find( id );
     if( res != _resources.end() ){
-        RenderableRecord& record = res->second;
-        if( record.resource == nullptr ){ // Resource is not currently loaded. Need to get the resource
-            Plugin* plugin = _app.GetPluginManager().Get( record.plugin );
-            record.resource = plugin->Create(_app);
-            record.resource->load( record.path );            
-        }
-        return record.resource;
+      return res->second.get();
     }
     else{
         throw std::runtime_error( "No resource matching the specified id was registered." );

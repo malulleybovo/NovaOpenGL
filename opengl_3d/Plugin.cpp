@@ -1,67 +1,75 @@
+///////////////////////////////////////////////////////////////////////////////
+// Plugin architecture example                                               //
+//                                                                           //
+// This code serves as an example to the plugin architecture discussed in    //
+// the article and can be freely used.                                       //
+///////////////////////////////////////////////////////////////////////////////
+
 #include "Plugin.h"
-#include "Renderable.h"
-#include <dlfcn.h>
-#include <iostream>
 
-Nova::Plugin::Plugin( std::string name, std::string path ) : _name( name )
-{
-    const char *error;
+#include <stdexcept>
 
-    _handle = dlopen( path.c_str(), RTLD_LAZY );
-    if( !_handle ){
-        std::cerr << "Cannot load library: " << dlerror() << std::endl;
-        throw 1;
+using namespace std;
+
+namespace Nova {
+
+  // ----------------------------------------------------------------------- //
+
+  Plugin::Plugin(const std::string &filename) :
+    sharedLibraryHandle(0),
+    referenceCount(0),
+    getEngineVersionAddress(0),
+    registerPluginAddress(0) {
+
+    // Try to load the plugin as a shared library
+    this->sharedLibraryHandle = SharedLibrary::Load(filename);
+
+    // Locate the plugin's exported functions
+    try {
+      this->getEngineVersionAddress = SharedLibrary::GetFunctionPointer<
+        GetEngineVersionFunction
+      >(this->sharedLibraryHandle, "getEngineVersion");
+      this->registerPluginAddress = SharedLibrary::GetFunctionPointer<
+        RegisterPluginFunction
+      >(this->sharedLibraryHandle, "registerPlugin");
+
+      // Initialize a new shared library reference counter
+      this->referenceCount = new size_t(1);
     }
-
-    dlerror();
-    Nova_CreateRenderable_t* create_renderable = (Nova_CreateRenderable_t*) dlsym( _handle, "Nova_CreateRenderable");
-    if( (error = dlerror()) ){
-        std::cerr << "Could not find symbol in " << _name << " plugin: " << error << std::endl;
-        throw 2;
+    catch(std::exception &) {
+      SharedLibrary::Unload(this->sharedLibraryHandle);
+      throw;
     }
+  }
 
+  /// <summary>
+  ///   Creates a copy of a plugin that has already been loaded.
+  ///   Required to provide correct semantics for storing plugins in
+  ///   an STL map container.
+  /// </summary>
+  /// <param name="other">Other plugin instance to copy</param>
+  Plugin::Plugin(const Plugin &other) :
+    sharedLibraryHandle(other.sharedLibraryHandle),
+    referenceCount(other.referenceCount),
+    getEngineVersionAddress(other.getEngineVersionAddress),
+    registerPluginAddress(other.registerPluginAddress) {
 
-    dlerror();
-    Nova_DestroyRenderable_t* destroy_renderable = (Nova_DestroyRenderable_t*) dlsym( _handle, "Nova_DestroyRenderable");
-    if( (error = dlerror()) ){
-        std::cerr << "Could not find symbol in " << _name << " plugin: " << error << std::endl;
-        throw 2;
+    // Increase DLL reference counter
+    if(this->referenceCount) {
+      ++(*this->referenceCount);
     }
+  }
 
-        
-}
-
-Nova::Plugin::~Plugin()
-{
-    dlclose(_handle);
-}
-
-Nova::Renderable*
-Nova::Plugin::Create(ApplicationFactory& app)
-{
-    const char *error;
-    dlerror();
-    Nova_CreateRenderable_t* create_renderable = (Nova_CreateRenderable_t*) dlsym( _handle, "Nova_CreateRenderable");
-    if( (error = dlerror()) ){
-        std::cerr << "Could not find symbol in " << _name << " plugin: " << error << std::endl;
-        throw 2;
+  /// <summary>
+  ///   Destroys the plugin, unloading its library when no more references
+  ///   to it exist.
+  /// </summary>
+  Plugin::~Plugin() {
+    int remainingReferences = --*(this->referenceCount);
+    if(remainingReferences == 0) {
+      delete this->referenceCount;
+      SharedLibrary::Unload(this->sharedLibraryHandle);
     }
-    
-    return create_renderable(app);        
-}
+  }
 
-
-void 
-Nova::Plugin::Destroy( Nova::Renderable* renderable )
-{
-    const char *error;
-    dlerror();
-    Nova_DestroyRenderable_t* destroy_renderable = (Nova_DestroyRenderable_t*) dlsym( _handle, "Nova_DestroyRenderable");
-    if( (error = dlerror()) ){
-        std::cerr << "Could not find symbol in " << _name << " plugin: " << error << std::endl;
-        throw 2;
-    }
-
-    destroy_renderable( renderable );
-
-}
+} // namespace MyEngine

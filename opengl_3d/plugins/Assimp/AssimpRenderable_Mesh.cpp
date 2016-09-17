@@ -1,15 +1,15 @@
 //#####################################################################
 // Copyright (c) 2016, Mridul Aanjaneya.
 //#####################################################################
-#include "NovaMesh_Mesh.h"
+#include "AssimpRenderable_Mesh.h"
 #include <sstream>
 #include <iostream>
 using namespace Nova;
 //#####################################################################
 // Constructor
 //#####################################################################
-NovaMesh_Mesh::
-NovaMesh_Mesh(const std::vector<Vertex>& vertices_input,const std::vector<GLuint>& indices_input,const std::vector<Texture>& textures_input)
+AssimpRenderable_Mesh::
+AssimpRenderable_Mesh(const std::vector<Vertex>& vertices_input,const std::vector<GLuint>& indices_input,const std::vector<Texture>& textures_input)
     :vertices(vertices_input),indices(indices_input),textures(textures_input)
 {
     Setup_Mesh();
@@ -17,7 +17,7 @@ NovaMesh_Mesh(const std::vector<Vertex>& vertices_input,const std::vector<GLuint
 //#####################################################################
 // Setup_Mesh
 //#####################################################################
-void NovaMesh_Mesh::
+void AssimpRenderable_Mesh::
 Setup_Mesh()
 {
     // create buffers/arrays
@@ -48,7 +48,7 @@ Setup_Mesh()
 //#####################################################################
 // Draw
 //#####################################################################
-void NovaMesh_Mesh::
+void AssimpRenderable_Mesh::
 Draw(const Shader& shader)
 {
     // bind appropriate textures

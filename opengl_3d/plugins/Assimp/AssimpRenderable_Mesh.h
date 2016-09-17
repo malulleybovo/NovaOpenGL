@@ -3,8 +3,8 @@
 //#####################################################################
 // Class Mesh
 //##################################################################### 
-#ifndef __NOVAMESH_MESH_H__
-#define __NOVAMESH_MESH_H__
+#ifndef __ASSIMP_RENDERABLE_MESH_H__
+#define __ASSIMP_RENDERABLE_MESH_H__
 
 #include "../../Shader.h"
 #include <assimp/types.h>
@@ -30,7 +30,7 @@ class Texture
     aiString path;
 };
 
-class NovaMesh_Mesh
+class AssimpRenderable_Mesh
 {
     GLuint VAO,VBO,EBO;                 // render data
   public:
@@ -38,8 +38,8 @@ class NovaMesh_Mesh
     std::vector<GLuint> indices;
     std::vector<Texture> textures;
 
-    NovaMesh_Mesh(const std::vector<Vertex>& vertices_input,const std::vector<GLuint>& indices_input,const std::vector<Texture>& textures_input);
-    ~NovaMesh_Mesh() {}
+    AssimpRenderable_Mesh(const std::vector<Vertex>& vertices_input,const std::vector<GLuint>& indices_input,const std::vector<Texture>& textures_input);
+    ~AssimpRenderable_Mesh() {}
 
 //##################################################################### 
     void Setup_Mesh();
