@@ -8,6 +8,8 @@ add_library( opengl_3d_kernel
   RenderableManager.cpp
   World.cpp
   Shader.cpp
+  IOService.cpp
+  TextRenderingService.cpp
   )
 
 pkg_check_modules (glfw3 REQUIRED glfw3)
@@ -52,3 +54,4 @@ target_link_libraries( opengl_3d_new
 #
 
 add_subdirectory( plugins/Assimp )
+add_subdirectory( plugins/FreeTypeTextRenderer )

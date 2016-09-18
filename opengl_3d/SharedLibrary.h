@@ -105,8 +105,9 @@ namespace Nova {
 
       void *sharedObject = ::dlopen(pathWithExtension.c_str(), RTLD_LAZY);
       if(sharedObject == NULL) {
+          const char *error = ::dlerror(); // check for error          
         throw std::runtime_error(
-          std::string("Could not load '") + pathWithExtension + "'"
+                                 std::string("Could not load '") + pathWithExtension +  std::string("': ") + std::string(error)
         );
       }
 

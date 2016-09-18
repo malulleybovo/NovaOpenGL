@@ -41,13 +41,10 @@ namespace Nova {
             view = _app.GetWorld().Get_ViewMatrix();
             model = _app.GetWorld().Get_ModelMatrix();
             projection = _app.GetWorld().Get_ProjectionMatrix();
-            
-            GLuint projection_location=glGetUniformLocation(_shader->GetProgramId(),"projection");
-            glUniformMatrix4fv(projection_location,1,GL_FALSE,glm::value_ptr(projection));
-            GLuint view_location=glGetUniformLocation(_shader->GetProgramId(),"view");
-            glUniformMatrix4fv(view_location,1,GL_FALSE,glm::value_ptr(view));
-            GLuint model_location=glGetUniformLocation(_shader->GetProgramId(),"model");
-            glUniformMatrix4fv(model_location,1,GL_FALSE,glm::value_ptr(model));
+            _shader->Use();
+            _shader->SetMatrix4("projection",projection);
+            _shader->SetMatrix4("view",view);
+            _shader->SetMatrix4("model",model);
             _model->Draw(*(_shader.get()));
         }
     };

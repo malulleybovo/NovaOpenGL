@@ -8,10 +8,10 @@
 
 #include "ApplicationFactory.h"
 
-#include <nova/Rendering/OpenGL/Cameras/StaticCameraControl.h>
-#include <nova/Rendering/OpenGL/Cameras/TrackballCameraControl.h>
-#include <nova/Rendering/OpenGL/Cameras/OrbitCameraControl.h>
-
+#include "StaticCameraControl.h"
+#include "TrackballCameraControl.h"
+#include "OrbitCameraControl.h"
+#include "IOEvent.h"
 
 using namespace Nova;
 //#####################################################################
@@ -27,6 +27,17 @@ World(ApplicationFactory& app)
     render_camera.Set_Clipping(.1,1000);
     render_camera.Set_FOV(45);
     control = new OrbitCameraControl( render_camera );
+    _app.GetIOService().On( IOService::MOUSE_DOWN, [&](IOEvent& event){control->MouseDown(event);} );
+    _app.GetIOService().On( IOService::MOUSE_UP, [&](IOEvent& event){control->MouseUp(event);} );
+    _app.GetIOService().On( IOService::MOUSE_MOVE, [&](IOEvent& event){control->MouseMove(event);} );
+    _app.GetIOService().On( IOService::SCROLL, [&](IOEvent& event){control->Scroll(event);} );
+    _app.GetIOService().On( IOService::KEY_DOWN, [&](IOEvent& event){control->KeyDown(event);} );
+    _app.GetIOService().On( IOService::KEY_UP, [&](IOEvent& event){control->KeyUp(event);} );
+    _app.GetIOService().On( IOService::KEY_HOLD, [&](IOEvent& event){control->KeyHold(event);} );
+    _app.GetIOService().On( IOService::REDRAW, [&](IOEvent& event){control->Redraw(event);} );
+    _app.GetIOService().On( IOService::TIME, [&](IOEvent& event){control->Update(event);} );
+
+
 }
 //#####################################################################
 // Destructor
@@ -126,8 +137,8 @@ Initialize_Camera_Controls()
 
   // Fire a redraw event to initialize the control to the window size,
   // just in case it needs it. 
-  OpenGL_IOEvent event;
-  event.type = OpenGL_IOEvent::DRAW;
+  IOEvent event;
+  event.type = IOEvent::DRAW;
   event.draw_data.width = width;
   event.draw_data.height = height;
   event.currentTime = glfwGetTime();
@@ -165,10 +176,10 @@ Main_Loop()
         render_camera.window_width=window_size.x;
         render_camera.window_height=window_size.y;
         
-        OpenGL_IOEvent event;
-        event.type = OpenGL_IOEvent::TIME;
+        IOEvent event;
+        event.type = IOEvent::TIME;
         event.currentTime = glfwGetTime();
-        control->Update(event);
+        _app.GetIOService().Trigger( event );
         render_camera.Update();
 
         glm::mat4 projection,view,model;
@@ -176,16 +187,137 @@ Main_Loop()
 
         glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
-        //GLuint projection_location=glGetUniformLocation(shader->program,"projection");
-        //glUniformMatrix4fv(projection_location,1,GL_FALSE,glm::value_ptr(projection));
-        //GLuint view_location=glGetUniformLocation(shader->program,"view");
-        //glUniformMatrix4fv(view_location,1,GL_FALSE,glm::value_ptr(view));
-        //GLuint model_location=glGetUniformLocation(shader->program,"model");
-        //glUniformMatrix4fv(model_location,1,GL_FALSE,glm::value_ptr(model));
-
         _app.GetScene().Draw();
 
+        // Test the TextRender Service     
+        _app.GetTextRenderingService().Render( "OpenGL_3D", 1.0f, 0.0f, 0.0f); 
+
+        
         glfwSwapBuffers(window);
     }
 }
 //#####################################################################
+
+void World::Close_Callback(GLFWwindow* window)
+{glfwSetWindowShouldClose(window,GL_TRUE);}
+
+void World::Scroll_Callback( GLFWwindow* window,double xoffset,double yoffset)
+{
+    World *world=static_cast<World*>(glfwGetWindowUserPointer(window));
+    
+    IOEvent event;
+    event.type = IOEvent::SCROLL;
+    event.scroll_data.x = xoffset;
+    event.scroll_data.y = yoffset;
+    event.currentTime = glfwGetTime();
+    world->_app.GetIOService().Trigger( event );
+    
+}
+
+
+void World::Reshape_Callback(GLFWwindow* window,int w,int h)
+{
+    World *world=static_cast<World*>(glfwGetWindowUserPointer(window));
+    if(h>0)
+        {
+            world->window_size=glm::ivec2(w,h);
+            world->window_aspect=float(w)/float(h);
+        }
+    
+    GLFWmonitor *primary=glfwGetPrimaryMonitor();
+    glfwGetMonitorPhysicalSize(primary,&world->window_physical_size.x,&world->window_physical_size.y);
+    glfwGetMonitorPos(primary,&world->window_position.x,&world->window_position.y);
+    const GLFWvidmode *mode=glfwGetVideoMode(primary);
+    world->dpi=mode->width/(world->window_physical_size.x/25.4);
+    
+    IOEvent event;
+    event.type = IOEvent::DRAW;
+    event.draw_data.width = w;
+    event.draw_data.height = h;
+    event.currentTime = glfwGetTime();
+    world->_app.GetIOService().Trigger( event );
+}
+
+void World::Keyboard_Callback(GLFWwindow* window,int key,int scancode,int action,int mode)
+{
+    World *world=static_cast<World*>(glfwGetWindowUserPointer(window));
+    if(key==GLFW_KEY_ESCAPE && action==GLFW_PRESS)
+        glfwSetWindowShouldClose(window,GL_TRUE);           
+    
+    IOEvent event;
+    event.type = IOEvent::KEYBOARD;
+    event.key_data.key = IOEvent::KEY_CODE(key);
+    event.key_data.scancode = scancode;
+    event.key_data.mods =
+        ( (mode & GLFW_MOD_SUPER != 0 ) ?  IOEvent::mSHIFT : 0 )  | 
+        ( (mode & GLFW_MOD_ALT != 0 ) ?  IOEvent::mALT : 0 )  | 
+        ( (mode & GLFW_MOD_CONTROL != 0 ) ?  IOEvent::mCONTROL : 0 )  | 
+        ( (mode & GLFW_MOD_SUPER != 0 ) ?  IOEvent::mSUPER : 0  );
+    event.currentTime = glfwGetTime();
+    switch( action ){
+    case GLFW_PRESS:
+        event.key_data.action = IOEvent::K_DOWN;
+        break;
+    case GLFW_RELEASE:
+        event.key_data.action = IOEvent::K_UP;
+        break;
+    case GLFW_REPEAT:
+        event.key_data.action = IOEvent::K_HOLD;
+        break;
+    }
+
+    world->_app.GetIOService().Trigger( event );
+}
+
+void World::Mouse_Button_Callback(GLFWwindow* window,int button,int state,int mods)
+{
+    World *world=static_cast<World*>(glfwGetWindowUserPointer(window));
+    double x,y;
+    glfwGetCursorPos(window,&x,&y);
+    
+    IOEvent event;
+    event.type = IOEvent::MOUSEBUTTON;
+    event.currentTime = glfwGetTime();
+    switch( button ){
+    case GLFW_MOUSE_BUTTON_LEFT:
+        event.mousebutton_data.button = IOEvent::M_LEFT;
+        break;
+    case GLFW_MOUSE_BUTTON_RIGHT:
+        event.mousebutton_data.button = IOEvent::M_RIGHT;
+        break;
+    case GLFW_MOUSE_BUTTON_MIDDLE:
+        event.mousebutton_data.button = IOEvent::M_MIDDLE;
+        break;
+    default:
+        event.mousebutton_data.button = IOEvent::M_OTHER;
+        break;
+    }
+    event.mousebutton_data.button_raw = button;
+    event.mousebutton_data.x = x;
+    event.mousebutton_data.y = y;
+    event.mousebutton_data.mods =
+        ( (mods & GLFW_MOD_SUPER != 0 ) ?  IOEvent::mSHIFT : 0 )  | 
+        ( (mods & GLFW_MOD_ALT != 0 ) ?  IOEvent::mALT : 0 )  | 
+        ( (mods & GLFW_MOD_CONTROL != 0 ) ?  IOEvent::mCONTROL : 0 )  | 
+        ( (mods & GLFW_MOD_SUPER != 0 ) ?  IOEvent::mSUPER : 0  );
+    switch( state ){
+    case GLFW_PRESS:
+        event.mousebutton_data.action = IOEvent::M_DOWN;
+        break;
+    case GLFW_RELEASE:
+        event.mousebutton_data.action = IOEvent::M_UP;
+        break;
+    }
+    world->_app.GetIOService().Trigger( event );
+}
+
+void World::Mouse_Position_Callback(GLFWwindow* window,double x,double y)
+{
+    World *world=static_cast<World*>(glfwGetWindowUserPointer(window));
+    IOEvent event;
+    event.type = IOEvent::MOUSEMOVE;
+    event.currentTime = glfwGetTime();
+    event.mousemotion_data.x = x;
+    event.mousemotion_data.y = y;
+    world->_app.GetIOService().Trigger( event );
+}
