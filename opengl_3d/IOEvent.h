@@ -1,4 +1,3 @@
-
 #ifndef __OPENGL_3D_IO_EVENT_H__
 #define __OPENGL_3D_IO_EVENT_H__
 
@@ -11,7 +10,8 @@ namespace Nova{
     class IOEvent{
     public:
         enum EVENT_TYPE { TIME = 0, MOUSEBUTTON = 1, MOUSEMOVE = 2,
-                          KEYBOARD = 4, DRAW = 8, DROP = 16, SCROLL=32};
+                          KEYBOARD = 4, DRAW = 8, DROP = 16, SCROLL=32,
+                          COMMAND=64};
         enum EVENT_MOD { mSHIFT = 1, mCONTROL = 2, mALT = 4, mSUPER = 8};
         enum MOUSE_BUTTON { M_LEFT = 1, M_RIGHT = 2, M_MIDDLE = 4, M_OTHER = 8 };
         enum MOUSE_ACTION { M_UP = 1, M_DOWN = 2 };
@@ -39,6 +39,7 @@ namespace Nova{
                        KEY_KP_EQUAL = 336,KEY_LEFT_SHIFT = 340,KEY_LEFT_CONTROL = 341,KEY_LEFT_ALT = 342,
                        KEY_LEFT_SUPER = 343,KEY_RIGHT_SHIFT = 344,KEY_RIGHT_CONTROL = 345,KEY_RIGHT_ALT = 346,
                        KEY_RIGHT_SUPER = 347,KEY_MENU = 348,KEY_LAST = 348 };
+
 
 
         EVENT_TYPE type;
@@ -79,20 +80,38 @@ namespace Nova{
             const char** filenames;
         };
 
-        //struct _command_data {
-        //    std::unique_ptr<std::string> command;
-        //    std::unique_ptr<std::vector< std::string > > args;
-        //};
-        
-        union{
-            _mousebutton_data mousebutton_data;
-            _key_data key_data;
-            _mousemotion_data mousemotion_data;
-            _draw_data draw_data;
-            _drop_data drop_data;
-            _scroll_data scroll_data;
-            // _command_data command_data;
+        struct _command_data {
+            std::string command;
+            std::vector<std::string> args;
         };
+
+        IOEvent() : type(TIME) {}
+        IOEvent( EVENT_TYPE _type ) : type(_type){
+            if( type == MOUSEBUTTON )
+                mousebutton_data = std::unique_ptr<_mousebutton_data>( new _mousebutton_data() );
+            if( type == MOUSEMOVE )
+                mousemotion_data = std::unique_ptr<_mousemotion_data>( new _mousemotion_data() );
+            if( type == KEYBOARD )
+                key_data = std::unique_ptr<_key_data>( new _key_data() );
+            if( type == DRAW )
+                draw_data = std::unique_ptr<_draw_data>( new _draw_data() );
+            if( type == DROP )
+                drop_data = std::unique_ptr<_drop_data>( new _drop_data() );
+            if( type == SCROLL )
+                scroll_data = std::unique_ptr<_scroll_data>( new _scroll_data() );
+            if( type == COMMAND )
+                command_data = std::unique_ptr<_command_data>( new _command_data() );
+
+        }
+        
+        std::unique_ptr<_mousebutton_data> mousebutton_data;
+        std::unique_ptr<_key_data> key_data;
+        std::unique_ptr<_mousemotion_data> mousemotion_data;
+        std::unique_ptr<_draw_data> draw_data;
+        std::unique_ptr<_drop_data> drop_data;
+        std::unique_ptr<_scroll_data> scroll_data;
+        std::unique_ptr<_command_data> command_data;
+    
         double currentTime;
     };
 

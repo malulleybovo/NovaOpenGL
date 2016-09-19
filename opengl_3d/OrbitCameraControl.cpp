@@ -45,20 +45,20 @@ Nova::OrbitCameraControl::OrbitCameraControl( Camera& camera ) : BASE( camera )
 void Nova::OrbitCameraControl::MouseDown(const Nova::IOEvent& event) {
 
     if ( enabled == false ) return;
-    switch( event.mousebutton_data.button ){
+    switch( event.mousebutton_data->button ){
     case Nova::IOEvent::M_LEFT:
         if ( enableRotate == false ) return;
-        rotateStart = glm::vec2( event.mousebutton_data.x, event.mousebutton_data.y );
+        rotateStart = glm::vec2( event.mousebutton_data->x, event.mousebutton_data->y );
         state = ROTATE;
         break;
     case Nova::IOEvent::M_RIGHT:
         if ( enablePan == false ) return;
-        panStart = glm::vec2( event.mousebutton_data.x, event.mousebutton_data.y );
+        panStart = glm::vec2( event.mousebutton_data->x, event.mousebutton_data->y );
         state = PAN;
         break;
     case Nova::IOEvent::M_MIDDLE:
         if ( enableZoom == false ) return;
-        dollyStart = glm::vec2( event.mousebutton_data.x, event.mousebutton_data.y );
+        dollyStart = glm::vec2( event.mousebutton_data->x, event.mousebutton_data->y );
         state = DOLLY;
         break;
     }
@@ -74,7 +74,7 @@ void Nova::OrbitCameraControl::MouseMove(const Nova::IOEvent& event) {
     if ( state == ROTATE ) {
         if ( enableRotate == false ) return;
         
-        rotateEnd = glm::vec2( event.mousemotion_data.x, event.mousemotion_data.y );
+        rotateEnd = glm::vec2( event.mousemotion_data->x, event.mousemotion_data->y );
 		rotateDelta = rotateEnd - rotateStart;
 		// rotating across whole screen goes 360 degrees around
 		rotateLeft( 2 * glm::pi<float>() * rotateDelta.x / screen.width * rotateSpeed );
@@ -85,7 +85,7 @@ void Nova::OrbitCameraControl::MouseMove(const Nova::IOEvent& event) {
 		rotateStart = rotateEnd;
     } else if ( state == DOLLY ) {
         if ( enableZoom == false ) return;
-        dollyEnd = glm::vec2( event.mousemotion_data.x, event.mousemotion_data.y );
+        dollyEnd = glm::vec2( event.mousemotion_data->x, event.mousemotion_data->y );
 		dollyDelta = dollyEnd - dollyStart;
         
 		if ( dollyDelta.y > 0 ) {
@@ -96,7 +96,7 @@ void Nova::OrbitCameraControl::MouseMove(const Nova::IOEvent& event) {
 		dollyStart = dollyEnd;
     } else if ( state == PAN ) {
         if ( enablePan == false ) return;
-        panEnd = glm::vec2( event.mousemotion_data.x, event.mousemotion_data.y );
+        panEnd = glm::vec2( event.mousemotion_data->x, event.mousemotion_data->y );
 		panDelta = panEnd - panStart;
 		pan( panDelta.x, panDelta.y );
 		panStart = panEnd;
@@ -113,16 +113,16 @@ void Nova::OrbitCameraControl::KeyUp(const Nova::IOEvent& event) {
 void Nova::OrbitCameraControl::KeyHold(const Nova::IOEvent& event) {
     if ( enabled == false || enableKeys == false || enablePan == false ) return;
 
-    if( event.key_data.key ==  keys[0]) { // Up
+    if( event.key_data->key ==  keys[0]) { // Up
         pan( 0, keyPanSpeed );
         Update(event);       
-    } else if (  event.key_data.key == keys[1] ){ // Down
+    } else if (  event.key_data->key == keys[1] ){ // Down
         pan( 0, -keyPanSpeed );
         Update(event);
-    } else if(   event.key_data.key == keys[2] ){ // Left
+    } else if(   event.key_data->key == keys[2] ){ // Left
         pan( keyPanSpeed, 0 );
         Update(event);
-    }else if (   event.key_data.key == keys[3] ){ // Right     
+    }else if (   event.key_data->key == keys[3] ){ // Right     
         pan( -keyPanSpeed, 0 );
         Update(event);
     }    
@@ -131,15 +131,15 @@ void Nova::OrbitCameraControl::KeyHold(const Nova::IOEvent& event) {
 void Nova::OrbitCameraControl::Redraw(const Nova::IOEvent& event) {
     screen.left = 0;
     screen.top = 0;
-    screen.width = event.draw_data.width;
-    screen.height = event.draw_data.height;
+    screen.width = event.draw_data->width;
+    screen.height = event.draw_data->height;
 };
 
 void Nova::OrbitCameraControl::Scroll(const Nova::IOEvent& event) {
     if ( enabled == false || enableZoom == false || ( state != NONE && state != ROTATE ) ) return;       
-    if ( event.scroll_data.y < 0 ) {
+    if ( event.scroll_data->y < 0 ) {
         dollyOut( getZoomScale() );
-    } else if ( event.scroll_data.y > 0 ) {        
+    } else if ( event.scroll_data->y > 0 ) {        
         dollyIn( getZoomScale() );        
     }
     Update(event);

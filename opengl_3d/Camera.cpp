@@ -1,7 +1,7 @@
 //#####################################################################
 // Copyright (c) 2016, Mridul Aanjaneya.
 //#####################################################################
-#include <nova/Rendering/OpenGL/Cameras/Camera.h>
+#include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/quaternion.hpp>

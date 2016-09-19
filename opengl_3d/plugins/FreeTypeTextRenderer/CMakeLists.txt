@@ -23,7 +23,6 @@ ${FREETYPE_INCLUDE_DIRS}
 
 target_link_libraries( plugin_FreeTypeRenderer
   PRIVATE
-  nova::rendering
   ${FREETYPE_LIBRARIES}
 )
 

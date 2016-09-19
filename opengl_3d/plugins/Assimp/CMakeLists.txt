@@ -9,6 +9,8 @@ add_library( plugin_Assimp
 
 find_package(assimp REQUIRED)
 find_package(Boost 1.54 REQUIRED COMPONENTS filesystem program_options)
+find_package(SOIL REQUIRED)
+
 
 
 if(WIN32)
@@ -22,9 +24,9 @@ endif()
 
 target_link_libraries( plugin_Assimp
   PRIVATE
-  nova::rendering
   ${Boost_LIBRARIES}
   ${assimp_LIBRARIES}
+  SOIL
 )
 
 target_compile_features( plugin_Assimp

@@ -11,6 +11,9 @@ add_library( opengl_3d_kernel
   IOService.cpp
   TextRenderingService.cpp
   CommandDispatch.cpp
+  Camera.cpp
+  OrbitCameraControl.cpp
+  TrackballCameraControl.cpp
   )
 
 pkg_check_modules (glfw3 REQUIRED glfw3)
@@ -29,9 +32,10 @@ endif()
 
 target_link_libraries( opengl_3d_kernel
   ${Boost_LIBRARIES}
-  nova::rendering
   ${CMAKE_DL_LIBS}
-  SOIL ${OPENGL_LIBRARIES} glfw GLEW
+  ${OPENGL_LIBRARIES}
+  glfw
+  GLEW
   )
 
 target_compile_features( opengl_3d_kernel

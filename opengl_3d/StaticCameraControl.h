@@ -28,63 +28,63 @@ namespace Nova {
             std::cout << "MouseDown Event: " << 
                 event.type << " " << 
                 event.currentTime << " " <<
-                event.mousebutton_data.button << " " <<
-                event.mousebutton_data.button_raw << " " << 
-                event.mousebutton_data.action << " " << 
-                event.mousebutton_data.mods << std::endl;                
+                event.mousebutton_data->button << " " <<
+                event.mousebutton_data->button_raw << " " << 
+                event.mousebutton_data->action << " " << 
+                event.mousebutton_data->mods << std::endl;                
         };
         virtual void MouseUp(const IOEvent& event) {
             std::cout << "MouseUp Event: " << 
                 event.type << " " << 
                 event.currentTime << " " <<
-                event.mousebutton_data.button << " " <<
-                event.mousebutton_data.button_raw << " " << 
-                event.mousebutton_data.action << " " << 
-                event.mousebutton_data.mods << std::endl;                
+                event.mousebutton_data->button << " " <<
+                event.mousebutton_data->button_raw << " " << 
+                event.mousebutton_data->action << " " << 
+                event.mousebutton_data->mods << std::endl;                
         };
         virtual void MouseMove(const IOEvent& event) {
             std::cout << "MouseMove Event: " <<
                 event.type << " " << 
                 event.currentTime << " " <<
-                event.mousemotion_data.x << " " << 
-                event.mousemotion_data.y << std::endl;
+                event.mousemotion_data->x << " " << 
+                event.mousemotion_data->y << std::endl;
         };
 
         virtual void KeyDown(const IOEvent& event) {
             std::cout << "KeyDown Event: " << 
                 event.type << " " << 
                 event.currentTime << " " <<
-                event.key_data.key << " " << 
-                event.key_data.scancode << " " << 
-                event.key_data.action << " " <<
-                event.key_data.mods << std::endl;
+                event.key_data->key << " " << 
+                event.key_data->scancode << " " << 
+                event.key_data->action << " " <<
+                event.key_data->mods << std::endl;
         };
 
         virtual  void KeyUp(const IOEvent& event) {
             std::cout << "KeyUp Event: " << 
                 event.type << " " << 
                 event.currentTime << " " <<
-                event.key_data.key << " " << 
-                event.key_data.scancode << " " << 
-                event.key_data.action << " " <<
-                event.key_data.mods << std::endl;
+                event.key_data->key << " " << 
+                event.key_data->scancode << " " << 
+                event.key_data->action << " " <<
+                event.key_data->mods << std::endl;
         };
         virtual void KeyHold(const IOEvent& event) {
             std::cout << "KeyHold Event: " << 
                 event.type << " " << 
                 event.currentTime << " " <<
-                event.key_data.key << " " << 
-                event.key_data.scancode << " " << 
-                event.key_data.action << " " <<
-                event.key_data.mods << std::endl;
+                event.key_data->key << " " << 
+                event.key_data->scancode << " " << 
+                event.key_data->action << " " <<
+                event.key_data->mods << std::endl;
         };
 
         virtual void Redraw(const IOEvent& event) {
             std::cout << "Redraw Event: "<< 
                 event.type << " " <<
                 event.currentTime << " " << 
-                event.draw_data.width << " " <<
-                event.draw_data.height << std::endl;
+                event.draw_data->width << " " <<
+                event.draw_data->height << std::endl;
         };
 
         // State Methods

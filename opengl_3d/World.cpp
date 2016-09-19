@@ -36,6 +36,7 @@ World(ApplicationFactory& app)
     _app.GetIOService().On( IOService::KEY_HOLD, [&](IOEvent& event){control->KeyHold(event);} );
     _app.GetIOService().On( IOService::REDRAW, [&](IOEvent& event){control->Redraw(event);} );
     _app.GetIOService().On( IOService::TIME, [&](IOEvent& event){control->Update(event);} );
+    _app.GetIOService().On( "RESET-CAMERA", [&](IOEvent& event){control->Reset();} );
 
 
 }
@@ -137,10 +138,9 @@ Initialize_Camera_Controls()
 
   // Fire a redraw event to initialize the control to the window size,
   // just in case it needs it. 
-  IOEvent event;
-  event.type = IOEvent::DRAW;
-  event.draw_data.width = width;
-  event.draw_data.height = height;
+  IOEvent event(IOEvent::DRAW);
+  event.draw_data->width = width;
+  event.draw_data->height = height;
   event.currentTime = glfwGetTime();
   control->Redraw( event );
 
@@ -176,8 +176,7 @@ Main_Loop()
         render_camera.window_width=window_size.x;
         render_camera.window_height=window_size.y;
         
-        IOEvent event;
-        event.type = IOEvent::TIME;
+        IOEvent event(IOEvent::TIME);
         event.currentTime = glfwGetTime();
         glm::mat4 projection,view,model;
         render_camera.Get_Matrices(projection,view,model);
@@ -199,10 +198,9 @@ void World::Scroll_Callback( GLFWwindow* window,double xoffset,double yoffset)
 {
     World *world=static_cast<World*>(glfwGetWindowUserPointer(window));
     
-    IOEvent event;
-    event.type = IOEvent::SCROLL;
-    event.scroll_data.x = xoffset;
-    event.scroll_data.y = yoffset;
+    IOEvent event(IOEvent::SCROLL);
+    event.scroll_data->x = xoffset;
+    event.scroll_data->y = yoffset;
     event.currentTime = glfwGetTime();
     world->_app.GetIOService().Trigger( event );
     
@@ -224,10 +222,9 @@ void World::Reshape_Callback(GLFWwindow* window,int w,int h)
     const GLFWvidmode *mode=glfwGetVideoMode(primary);
     world->dpi=mode->width/(world->window_physical_size.x/25.4);
     
-    IOEvent event;
-    event.type = IOEvent::DRAW;
-    event.draw_data.width = w;
-    event.draw_data.height = h;
+    IOEvent event(IOEvent::DRAW);
+    event.draw_data->width = w;
+    event.draw_data->height = h;
     event.currentTime = glfwGetTime();
     world->_app.GetIOService().Trigger( event );
 }
@@ -238,11 +235,10 @@ void World::Keyboard_Callback(GLFWwindow* window,int key,int scancode,int action
     if(key==GLFW_KEY_ESCAPE && action==GLFW_PRESS)
         glfwSetWindowShouldClose(window,GL_TRUE);           
     
-    IOEvent event;
-    event.type = IOEvent::KEYBOARD;
-    event.key_data.key = IOEvent::KEY_CODE(key);
-    event.key_data.scancode = scancode;
-    event.key_data.mods =
+    IOEvent event(IOEvent::KEYBOARD);
+    event.key_data->key = IOEvent::KEY_CODE(key);
+    event.key_data->scancode = scancode;
+    event.key_data->mods =
         ( (mode & GLFW_MOD_SUPER != 0 ) ?  IOEvent::mSHIFT : 0 )  | 
         ( (mode & GLFW_MOD_ALT != 0 ) ?  IOEvent::mALT : 0 )  | 
         ( (mode & GLFW_MOD_CONTROL != 0 ) ?  IOEvent::mCONTROL : 0 )  | 
@@ -250,13 +246,13 @@ void World::Keyboard_Callback(GLFWwindow* window,int key,int scancode,int action
     event.currentTime = glfwGetTime();
     switch( action ){
     case GLFW_PRESS:
-        event.key_data.action = IOEvent::K_DOWN;
+        event.key_data->action = IOEvent::K_DOWN;
         break;
     case GLFW_RELEASE:
-        event.key_data.action = IOEvent::K_UP;
+        event.key_data->action = IOEvent::K_UP;
         break;
     case GLFW_REPEAT:
-        event.key_data.action = IOEvent::K_HOLD;
+        event.key_data->action = IOEvent::K_HOLD;
         break;
     }
 
@@ -269,37 +265,36 @@ void World::Mouse_Button_Callback(GLFWwindow* window,int button,int state,int mo
     double x,y;
     glfwGetCursorPos(window,&x,&y);
     
-    IOEvent event;
-    event.type = IOEvent::MOUSEBUTTON;
+    IOEvent event(IOEvent::MOUSEBUTTON);
     event.currentTime = glfwGetTime();
     switch( button ){
     case GLFW_MOUSE_BUTTON_LEFT:
-        event.mousebutton_data.button = IOEvent::M_LEFT;
+        event.mousebutton_data->button = IOEvent::M_LEFT;
         break;
     case GLFW_MOUSE_BUTTON_RIGHT:
-        event.mousebutton_data.button = IOEvent::M_RIGHT;
+        event.mousebutton_data->button = IOEvent::M_RIGHT;
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
-        event.mousebutton_data.button = IOEvent::M_MIDDLE;
+        event.mousebutton_data->button = IOEvent::M_MIDDLE;
         break;
     default:
-        event.mousebutton_data.button = IOEvent::M_OTHER;
+        event.mousebutton_data->button = IOEvent::M_OTHER;
         break;
     }
-    event.mousebutton_data.button_raw = button;
-    event.mousebutton_data.x = x;
-    event.mousebutton_data.y = y;
-    event.mousebutton_data.mods =
+    event.mousebutton_data->button_raw = button;
+    event.mousebutton_data->x = x;
+    event.mousebutton_data->y = y;
+    event.mousebutton_data->mods =
         ( (mods & GLFW_MOD_SUPER != 0 ) ?  IOEvent::mSHIFT : 0 )  | 
         ( (mods & GLFW_MOD_ALT != 0 ) ?  IOEvent::mALT : 0 )  | 
         ( (mods & GLFW_MOD_CONTROL != 0 ) ?  IOEvent::mCONTROL : 0 )  | 
         ( (mods & GLFW_MOD_SUPER != 0 ) ?  IOEvent::mSUPER : 0  );
     switch( state ){
     case GLFW_PRESS:
-        event.mousebutton_data.action = IOEvent::M_DOWN;
+        event.mousebutton_data->action = IOEvent::M_DOWN;
         break;
     case GLFW_RELEASE:
-        event.mousebutton_data.action = IOEvent::M_UP;
+        event.mousebutton_data->action = IOEvent::M_UP;
         break;
     }
     world->_app.GetIOService().Trigger( event );
@@ -308,10 +303,10 @@ void World::Mouse_Button_Callback(GLFWwindow* window,int button,int state,int mo
 void World::Mouse_Position_Callback(GLFWwindow* window,double x,double y)
 {
     World *world=static_cast<World*>(glfwGetWindowUserPointer(window));
-    IOEvent event;
-    event.type = IOEvent::MOUSEMOVE;
+    IOEvent event(IOEvent::MOUSEMOVE);
+
     event.currentTime = glfwGetTime();
-    event.mousemotion_data.x = x;
-    event.mousemotion_data.y = y;
+    event.mousemotion_data->x = x;
+    event.mousemotion_data->y = y;
     world->_app.GetIOService().Trigger( event );
 }

@@ -45,7 +45,7 @@ void Nova::TrackballCameraControl::MouseDown(const Nova::IOEvent& event) {
     if ( enabled == false ) return;
     
     if ( _state == NONE ) {
-        switch( event.mousebutton_data.button ){
+        switch( event.mousebutton_data->button ){
         case Nova::IOEvent::M_LEFT:
             _state = ROTATE;
             break;
@@ -59,17 +59,17 @@ void Nova::TrackballCameraControl::MouseDown(const Nova::IOEvent& event) {
     }
     
     if ( _state == ROTATE && ! noRotate ) {
-        _moveCurr = getMouseOnCircle( glm::vec2(event.mousebutton_data.x, event.mousebutton_data.y) );
+        _moveCurr = getMouseOnCircle( glm::vec2(event.mousebutton_data->x, event.mousebutton_data->y) );
         _movePrev = _moveCurr;
         
     } else if ( _state == ZOOM && ! noZoom ) {
         
-        _zoomStart = getMouseOnScreen( glm::vec2(event.mousebutton_data.x, event.mousebutton_data.y) );
+        _zoomStart = getMouseOnScreen( glm::vec2(event.mousebutton_data->x, event.mousebutton_data->y) );
         _zoomEnd = _zoomStart;
         
     } else if ( _state == PAN && ! noPan ) {
         
-        _panStart = getMouseOnScreen( glm::vec2(event.mousebutton_data.x, event.mousebutton_data.y) );
+        _panStart = getMouseOnScreen( glm::vec2(event.mousebutton_data->x, event.mousebutton_data->y) );
         _panEnd =  _panStart;
         
     }    
@@ -85,12 +85,12 @@ void Nova::TrackballCameraControl::MouseMove(const Nova::IOEvent& event) {
     
     if ( _state == ROTATE && ! noRotate ) {
         _movePrev = _moveCurr;
-        _moveCurr = getMouseOnCircle( glm::vec2(event.mousemotion_data.x, event.mousemotion_data.y) );
+        _moveCurr = getMouseOnCircle( glm::vec2(event.mousemotion_data->x, event.mousemotion_data->y) );
     } else if ( _state == ZOOM && ! noZoom ) {
-        _zoomEnd = getMouseOnScreen( glm::vec2(event.mousemotion_data.x, event.mousemotion_data.y) );
+        _zoomEnd = getMouseOnScreen( glm::vec2(event.mousemotion_data->x, event.mousemotion_data->y) );
         
     } else if ( _state == PAN && ! noPan ) {
-        _panEnd = getMouseOnScreen( glm::vec2(event.mousemotion_data.x, event.mousemotion_data.y) );
+        _panEnd = getMouseOnScreen( glm::vec2(event.mousemotion_data->x, event.mousemotion_data->y) );
     }
 };
 
@@ -100,11 +100,11 @@ void Nova::TrackballCameraControl::KeyDown(const Nova::IOEvent& event) {
     
     if ( _state != NONE ) {
         return;        
-    } else if ( event.key_data.key == keys[ ROTATE ] && ! noRotate ) {
+    } else if ( event.key_data->key == keys[ ROTATE ] && ! noRotate ) {
         _state = ROTATE;        
-    } else if ( event.key_data.key == keys[ ZOOM ] && ! noZoom ) {
+    } else if ( event.key_data->key == keys[ ZOOM ] && ! noZoom ) {
         _state = ZOOM;        
-    } else if ( event.key_data.key == keys[ PAN ] && ! noPan ) {        
+    } else if ( event.key_data->key == keys[ PAN ] && ! noPan ) {        
         _state = PAN;        
     }
 };
@@ -121,13 +121,13 @@ void Nova::TrackballCameraControl::KeyHold(const Nova::IOEvent& event) {
 void Nova::TrackballCameraControl::Redraw(const Nova::IOEvent& event) {
     screen.left = 0;
     screen.top = 0;
-    screen.width = event.draw_data.width;
-    screen.height = event.draw_data.height;
+    screen.width = event.draw_data->width;
+    screen.height = event.draw_data->height;
 };
 
 void Nova::TrackballCameraControl::Scroll(const Nova::IOEvent& event) {
     if ( enabled == false ) return;   
-    _zoomStart.y -= event.scroll_data.y * 0.01;
+    _zoomStart.y -= event.scroll_data->y * 0.01;
 }
 
 // State Methods

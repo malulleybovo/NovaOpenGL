@@ -28,6 +28,6 @@ Nova::TextRenderingService::Render(  std::string text, float scaling, float x, f
 
 void
 Nova::TextRenderingService::UpdateScreenSize(const Nova::IOEvent& event){
-    width = event.draw_data.width;
-    height = event.draw_data.height;
+    width = event.draw_data->width;
+    height = event.draw_data->height;
 }
