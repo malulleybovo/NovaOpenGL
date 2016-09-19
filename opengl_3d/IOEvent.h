@@ -2,11 +2,16 @@
 #ifndef __OPENGL_3D_IO_EVENT_H__
 #define __OPENGL_3D_IO_EVENT_H__
 
+#include <string>
+#include <vector>
+#include <memory>
+
 namespace Nova{
 
     class IOEvent{
     public:
-        enum EVENT_TYPE { TIME = 0, MOUSEBUTTON = 1, MOUSEMOVE = 2, KEYBOARD = 4, DRAW = 8, DROP = 16, SCROLL=32 }; 
+        enum EVENT_TYPE { TIME = 0, MOUSEBUTTON = 1, MOUSEMOVE = 2,
+                          KEYBOARD = 4, DRAW = 8, DROP = 16, SCROLL=32};
         enum EVENT_MOD { mSHIFT = 1, mCONTROL = 2, mALT = 4, mSUPER = 8};
         enum MOUSE_BUTTON { M_LEFT = 1, M_RIGHT = 2, M_MIDDLE = 4, M_OTHER = 8 };
         enum MOUSE_ACTION { M_UP = 1, M_DOWN = 2 };
@@ -73,6 +78,11 @@ namespace Nova{
                 int num_files;
             const char** filenames;
         };
+
+        //struct _command_data {
+        //    std::unique_ptr<std::string> command;
+        //    std::unique_ptr<std::vector< std::string > > args;
+        //};
         
         union{
             _mousebutton_data mousebutton_data;
@@ -81,6 +91,7 @@ namespace Nova{
             _draw_data draw_data;
             _drop_data drop_data;
             _scroll_data scroll_data;
+            // _command_data command_data;
         };
         double currentTime;
     };

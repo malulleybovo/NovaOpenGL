@@ -1,4 +1,5 @@
 #include "IOService.h"
+#include <iostream>
 
 Nova::IOService::IOService( ApplicationFactory& app) : _app(app)
 {
@@ -44,6 +45,7 @@ Nova::IOService::translateEventType( const Nova::IOEvent& event ) const {
             type=KEY_HOLD;
             break;
         }
+        break;
     case IOEvent::DRAW:
         type=REDRAW;
         break;
@@ -65,6 +67,8 @@ Nova::IOService::Trigger( Nova::IOEvent event )
     {
         auto res = _priority_callback.find( translateEventType(event) );
         if( res != _priority_callback.end() ){
+            //if( translateEventType(event) != TIME )
+            //    std::cout << "Calling priority callback for event " <<  translateEventType(event) << " : " << res->second.target_type().name() << std::endl;
             res->second( event );
             return; 
         }
@@ -75,6 +79,8 @@ Nova::IOService::Trigger( Nova::IOEvent event )
         auto res = _callbacks.find( translateEventType(event) );
         if( res != _callbacks.end() ){
             for( auto callback : res->second ){
+                //if( translateEventType(event) != TIME )
+                //    std::cout << "Calling callback for event " <<  translateEventType(event) << " : " << callback.target_type().name()<< std::endl;
                 callback( event );
             }
         }

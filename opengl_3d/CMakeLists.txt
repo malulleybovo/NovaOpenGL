@@ -10,6 +10,7 @@ add_library( opengl_3d_kernel
   Shader.cpp
   IOService.cpp
   TextRenderingService.cpp
+  CommandDispatch.cpp
   )
 
 pkg_check_modules (glfw3 REQUIRED glfw3)

@@ -45,26 +45,26 @@ World(ApplicationFactory& app)
 World::
 ~World()
 {
-    glfwTerminate();
-    if( control ){
-        delete control;
-        control = nullptr;
-    }
+glfwTerminate();
+if( control ){
+delete control;
+control = nullptr;
 }
-//#####################################################################
-// Camera Matrix Operators
-//#####################################################################
+}
+    //#####################################################################
+    // Camera Matrix Operators
+    //#####################################################################
     glm::mat4 
     World::Get_ViewMatrix() const {
 return render_camera.Get_ViewMatrix();
 }
-
+        
         glm::mat4
         World::Get_ModelMatrix() const {
 return render_camera.Get_ModelMatrix();
 
 }
-
+            
             glm::mat4
             World::Get_ProjectionMatrix() const {
 return render_camera.Get_ProjectionMatrix();
@@ -179,19 +179,13 @@ Main_Loop()
         IOEvent event;
         event.type = IOEvent::TIME;
         event.currentTime = glfwGetTime();
-        _app.GetIOService().Trigger( event );
-        render_camera.Update();
-
         glm::mat4 projection,view,model;
         render_camera.Get_Matrices(projection,view,model);
-
         glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
+        _app.GetIOService().Trigger( event );
+        render_camera.Update();
         _app.GetScene().Draw();
-
-        // Test the TextRender Service     
-        _app.GetTextRenderingService().Render( "OpenGL_3D", 1.0f, 0.0f, 0.0f); 
-
         
         glfwSwapBuffers(window);
     }
