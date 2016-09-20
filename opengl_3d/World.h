@@ -36,7 +36,7 @@ namespace Nova{
         glm::mat4 Get_ViewMatrix() const ;
         glm::mat4 Get_ModelMatrix() const ;
         glm::mat4 Get_ProjectionMatrix() const ; 
-
+        glm::vec4 Get_Viewport() const;
 
         static void Close_Callback(GLFWwindow* window);
         static void Scroll_Callback( GLFWwindow* window,double xoffset,double yoffset);              

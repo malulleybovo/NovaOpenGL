@@ -47,6 +47,28 @@ namespace Nova {
             _shader->SetMatrix4("model",model);
             _model->Draw(*(_shader.get()));
         }
+
+        virtual bool selectable() { return true; };
+
+        virtual float hit_test( glm::vec3 start_point, glm::vec3 end_point )
+        {
+            return _model->TestIntersection(start_point, end_point);
+        }
+
+        virtual glm::vec4 bounding_sphere()
+        {
+            return _model->BoundingSphere();
+        }
+
+        virtual void assign_selection( glm::vec3 start_point, glm::vec3 end_point, glm::vec3 intersection )
+        {
+            // Do stuff?
+        }
+
+        virtual void unassign_selection()
+        {
+            // Do stuff?
+        }
     };
 
   

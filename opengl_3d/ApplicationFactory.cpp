@@ -4,7 +4,9 @@
 
 Nova::ApplicationFactory::ApplicationFactory( const Nova::Config& config ) : _config( config )
 {
+    // This should be initialized first, in case other things want to initialize early bindings
     _ioservice = std::unique_ptr<IOService>( new IOService(*this) );
+
     _world = std::unique_ptr<World>( new World(*this) );    
     _scene = std::unique_ptr<Scene>( new Scene(*this) );
     _shaderman = std::unique_ptr<ShaderManager>( new ShaderManager(*this) );
@@ -50,10 +52,16 @@ Nova::ApplicationFactory::GetCommandDispatch()
 void 
 Nova::ApplicationFactory::Run()
 {
+    // Bind screen redraw events to text renderer to prevent distortion
     GetIOService().On( IOService::REDRAW, [&](IOEvent& event){_textrenderingservice->UpdateScreenSize( event ); });
+
+    // Bind the keydown and time events for the command dispatcher to read user input and render text
     GetIOService().On( IOService::KEY_DOWN, [&](IOEvent& event){ _commanddispatch->Input( event ); });
     GetIOService().On( IOService::TIME, [&](IOEvent& event){  _commanddispatch->Render( event ); });
-    
+
+    // Bind the mouse down to the scene to allow it to process selection attempts
+    GetIOService().On( IOService::MOUSE_DOWN, [&](IOEvent& event){ _scene->Selection( event ); });
+
     _world->Initialize(800,600);
     std::cout << "Loading scene from '" << _config.scenepath << "'" << std::endl; 
     _scene->Configure( _config.scenepath );

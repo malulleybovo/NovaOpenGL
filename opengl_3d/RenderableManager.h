@@ -5,6 +5,8 @@
 #include <map>
 #include <memory>
 #include <vector>
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
 
 namespace Nova {
 
@@ -16,6 +18,11 @@ namespace Nova {
     Renderable(ApplicationFactory& app) : _app(app) {};
       virtual ~Renderable() {};
       virtual void draw() = 0;
+      virtual bool selectable() {return false;} ;
+      virtual float hit_test( glm::vec3 start_point, glm::vec3 end_point ) { return 0.0f; };
+      virtual glm::vec4 bounding_sphere() { return glm::vec4(); };
+      virtual void assign_selection( glm::vec3 start_point, glm::vec3 end_point, glm::vec3 intersection ) { };
+      virtual void unassign_selection() { };
     protected:
       ApplicationFactory& _app;
     };

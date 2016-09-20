@@ -186,3 +186,19 @@ Load_Material_Textures(aiMaterial *material,aiTextureType type,const std::string
     }
 }
 //#####################################################################
+// TestIntersection
+//#####################################################################
+float 
+AssimpRenderable_Model::TestIntersection( glm::vec3 start_point, glm::vec3 end_point ){
+    
+
+    return 1000000;
+}
+//#####################################################################
+// BoundingSphere
+//#####################################################################
+glm::vec4 
+AssimpRenderable_Model::BoundingSphere()
+{
+    return _boundingSphere;
+}

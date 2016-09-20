@@ -47,6 +47,7 @@ void Nova::OrbitCameraControl::MouseDown(const Nova::IOEvent& event) {
     if ( enabled == false ) return;
     switch( event.mousebutton_data->button ){
     case Nova::IOEvent::M_LEFT:
+        if( event.mousebutton_data->mods & IOEvent::mSHIFT ) return;
         if ( enableRotate == false ) return;
         rotateStart = glm::vec2( event.mousebutton_data->x, event.mousebutton_data->y );
         state = ROTATE;

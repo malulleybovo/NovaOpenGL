@@ -47,6 +47,7 @@ void Nova::TrackballCameraControl::MouseDown(const Nova::IOEvent& event) {
     if ( _state == NONE ) {
         switch( event.mousebutton_data->button ){
         case Nova::IOEvent::M_LEFT:
+            if( event.mousebutton_data->mods & IOEvent::mSHIFT ) return;
             _state = ROTATE;
             break;
         case Nova::IOEvent::M_RIGHT:

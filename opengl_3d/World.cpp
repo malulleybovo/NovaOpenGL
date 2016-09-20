@@ -72,6 +72,12 @@ return render_camera.Get_ProjectionMatrix();
 
 }
 
+glm::vec4 World::Get_Viewport() const {
+    int viewport[4]; 
+    glGetIntegerv( GL_VIEWPORT, viewport ); 
+    return glm::vec4( viewport[0], viewport[1], viewport[2], viewport[3] );
+}
+
 //#####################################################################
 // Initialize
 //#####################################################################

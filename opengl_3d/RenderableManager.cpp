@@ -1,6 +1,5 @@
 #include "RenderableManager.h"
 #include "ApplicationFactory.h"
-#include "Renderable.h"
 #include <exception>
 #include <limits>
 #include <iostream>
