@@ -33,6 +33,8 @@ class AssimpRenderable_Model
     float TestIntersection( glm::vec3 start_point, glm::vec3 end_point );
     glm::vec4 BoundingSphere();
 
+ private:
+    void Build_Bounding_Sphere();
 //##################################################################### 
 };
 }

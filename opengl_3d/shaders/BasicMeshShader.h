@@ -8,10 +8,16 @@ in vec2 TexCoord;
 out vec4 color;
 
 uniform sampler2D texture_diffuse1;
+uniform int selected;
 
 void main()
 {    
-    color=vec4(texture(texture_diffuse1,TexCoord));
+    if( selected != 0 ){
+        color.rgb=texture(texture_diffuse1,TexCoord).rgb * vec3(1.2,0.7,0.7);
+        color.a = 1.0;
+    }
+    else
+        color=vec4(texture(texture_diffuse1,TexCoord));
 }
 )lang::GLSL";
 

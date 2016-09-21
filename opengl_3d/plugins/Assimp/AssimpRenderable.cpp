@@ -16,9 +16,10 @@ namespace Nova {
     class AssimpRenderable : public Renderable {        
         std::unique_ptr<AssimpRenderable_Model> _model;
         std::unique_ptr<Shader> _shader;
+        bool selected;
 
     public:
-        AssimpRenderable( ApplicationFactory& app ) : Renderable( app )
+        AssimpRenderable( ApplicationFactory& app ) : Renderable( app ), selected(false)
         {
             _model = std::unique_ptr<AssimpRenderable_Model>( new AssimpRenderable_Model() );
             _shader = std::unique_ptr<Shader>( new Shader() );
@@ -45,6 +46,7 @@ namespace Nova {
             _shader->SetMatrix4("projection",projection);
             _shader->SetMatrix4("view",view);
             _shader->SetMatrix4("model",model);
+            _shader->SetInteger("selected",selected ? 1 : 0);
             _model->Draw(*(_shader.get()));
         }
 
@@ -62,12 +64,12 @@ namespace Nova {
 
         virtual void assign_selection( glm::vec3 start_point, glm::vec3 end_point, glm::vec3 intersection )
         {
-            // Do stuff?
+            selected = true;
         }
 
         virtual void unassign_selection()
         {
-            // Do stuff?
+            selected = false;
         }
     };
 

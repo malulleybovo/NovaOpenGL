@@ -196,7 +196,7 @@ Nova::Scene::Selection( IOEvent& event )
     if( selected_object != _app.GetRenderableManager().MaxId() )
         _app.GetRenderableManager().Get( selected_object ) -> unassign_selection();
     
-    float min_distance = glm::length( hit_end - hit_start);
+    float min_distance = std::numeric_limits<float>::infinity();
     selected_object = _app.GetRenderableManager().MaxId();
     for( auto objectId : _scene_objects ){
         Renderable* renderable = _app.GetRenderableManager().Get( objectId );
@@ -224,15 +224,11 @@ Nova::Scene::Selection( IOEvent& event )
                 }
             }
         }
-        else{
-            //std::cout << "Renderable " << objectId << " is not selectable. Skipping." << std::endl;
-        }        
     }
     if( selected_object != _app.GetRenderableManager().MaxId() ){
         _app.GetRenderableManager().Get( selected_object ) -> assign_selection( hit_start,
                                                                                 hit_end,
                                                                                 glm::normalize( hit_end-hit_start )*min_distance + hit_start );       
-        std::cout << "Now selected object " << selected_object << std::endl;
     }
 
 }

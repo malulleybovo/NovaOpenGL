@@ -27,7 +27,7 @@ namespace Nova {
             GLuint Advance;     // Horizontal offset to advance to next glyph
         };
         
-        FreeTypeRenderer( std::string fontname ) : TextRenderer() {
+        FreeTypeRenderer( ApplicationFactory& app, std::string fontname ) : TextRenderer() {
             // Load and configure shader
             _shader = std::unique_ptr<Shader>( new Shader() );
             _shader->LoadFromString(NovaBuiltinShaders::BasicTextShader::vertex_shader,
@@ -44,7 +44,9 @@ namespace Nova {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
 
-            LoadFont( fontname, 12 );
+            float font_size = 12 * (app.GetWorld().Get_DPI() / 72.0f);
+
+            LoadFont( fontname, font_size );
         }
         
         virtual ~FreeTypeRenderer() {
@@ -176,7 +178,7 @@ namespace Nova {
 }
 
 extern "C" void registerPlugin(Nova::ApplicationFactory& app) {
-    app.GetTextRenderingService().RegisterProvider( std::move( std::unique_ptr<Nova::TextRenderer>( new Nova::FreeTypeRenderer("fonts/arial.ttf") )));
+    app.GetTextRenderingService().RegisterProvider( std::move( std::unique_ptr<Nova::TextRenderer>( new Nova::FreeTypeRenderer(app, "fonts/arial.ttf") )));
 }
 
 extern "C" int getEngineVersion() {

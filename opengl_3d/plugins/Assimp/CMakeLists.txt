@@ -6,12 +6,11 @@ add_library( plugin_Assimp
   AssimpRenderable_Mesh.cpp
 )
 
+add_subdirectory( miniball )
 
 find_package(assimp REQUIRED)
 find_package(Boost 1.54 REQUIRED COMPONENTS filesystem program_options)
 find_package(SOIL REQUIRED)
-
-
 
 if(WIN32)
   target_compile_definitions( plugin_Assimp PUBLIC OPENGL_3D_WIN32=1)
@@ -27,9 +26,11 @@ target_link_libraries( plugin_Assimp
   ${Boost_LIBRARIES}
   ${assimp_LIBRARIES}
   SOIL
+  plugin_Assimp_miniball
 )
 
 target_compile_features( plugin_Assimp
   PRIVATE
   cxx_auto_type
   )
+

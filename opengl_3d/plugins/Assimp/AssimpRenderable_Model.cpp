@@ -5,6 +5,10 @@
 //#include <nova/Rendering/OpenGL/Utilities/OpenGL_Utilities.h>
 #include <assimp/postprocess.h>
 #include <iostream>
+#include "miniball/Seb.h"
+#include <limits>
+#include <glm/gtx/intersect.hpp>
+
 using namespace Nova;
 
 #include <SOIL/SOIL.h>
@@ -70,6 +74,7 @@ Load_Model(const std::string& path)
 
     // process ASSIMP's root node recursively
     Process_Node(scene->mRootNode,scene);
+    Build_Bounding_Sphere();
 }
 //#####################################################################
 // Process_Node
@@ -98,7 +103,7 @@ Process_Mesh(aiMesh *mesh,const aiScene *scene)
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     std::vector<Texture> textures;
-
+    
     for(GLuint i=0;i<mesh->mNumVertices;++i)
     {
         Vertex vertex;
@@ -154,6 +159,38 @@ Process_Mesh(aiMesh *mesh,const aiScene *scene)
     return AssimpRenderable_Mesh(vertices,indices,textures);
 }
 //#####################################################################
+// Build_Bounding_Sphere
+//#####################################################################
+void
+AssimpRenderable_Model::Build_Bounding_Sphere()
+{
+
+    std::vector< glm::vec3 > all_vertices;
+    for( auto mesh : meshes ){
+        for( auto vertex : mesh.vertices ){
+            all_vertices.push_back( vertex.position );
+        }
+    }
+    if( all_vertices.size() == 0 ){
+        _boundingSphere = glm::vec4(0,0,0,0);
+        return;
+    }
+
+   // For bounding sphere construction
+    SEB_NAMESPACE::Smallest_enclosing_ball<float,glm::vec3> miniball(3, all_vertices);
+    
+    glm::vec4 sphere;
+    sphere.x = *(miniball.center_begin()+0);
+    sphere.y = *(miniball.center_begin()+1);
+    sphere.z = *(miniball.center_begin()+2);
+    sphere[3] = miniball.radius(); 
+
+    std::cout << "Bounding sphere computed to at " << sphere.x << " " << sphere.y << " " << sphere.z <<
+        ", with a radius of  " << sphere[3] << std::endl;
+
+    _boundingSphere = sphere;
+}
+//#####################################################################
 // Load_Material_Textures
 //#####################################################################
 void AssimpRenderable_Model::
@@ -191,8 +228,29 @@ Load_Material_Textures(aiMaterial *material,aiTextureType type,const std::string
 float 
 AssimpRenderable_Model::TestIntersection( glm::vec3 start_point, glm::vec3 end_point ){
     
+    glm::vec3 origin = start_point;
+    glm::vec3 direction = glm::normalize(end_point-start_point);    
+    glm::vec3 position;
+    bool intersection_found = false;
+    float distance = std::numeric_limits<float>::infinity();
 
-    return 1000000;
+    for( auto mesh : meshes ){
+        for( int triangle = 0; triangle < mesh.indices.size()/3; triangle++ ){
+            
+            bool intersecting = glm::intersectLineTriangle( origin, direction, 
+                                                            mesh.vertices[ mesh.indices[triangle*3+0] ].position,
+                                                            mesh.vertices[ mesh.indices[triangle*3+1] ].position,
+                                                            mesh.vertices[ mesh.indices[triangle*3+2] ].position,
+                                                            position );
+            if( intersecting ){
+                intersection_found = true;
+                if( distance > glm::length( position - origin ) )
+                    distance = glm::length( position - origin );
+            }   
+        }
+    }
+    
+    return distance;
 }
 //#####################################################################
 // BoundingSphere
