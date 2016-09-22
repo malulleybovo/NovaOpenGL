@@ -12,11 +12,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../../shaders/BasicTextShader.h"
-
 namespace Nova {
 
     class FreeTypeRenderer : public TextRenderer {
+        ApplicationFactory& _app;
+        
     public:
 
         /// Holds all state information relevant to a character as loaded using FreeType
@@ -27,12 +27,7 @@ namespace Nova {
             GLuint Advance;     // Horizontal offset to advance to next glyph
         };
         
-        FreeTypeRenderer( ApplicationFactory& app, std::string fontname ) : TextRenderer() {
-            // Load and configure shader
-            _shader = std::unique_ptr<Shader>( new Shader() );
-            _shader->LoadFromString(NovaBuiltinShaders::BasicTextShader::vertex_shader,
-                                    NovaBuiltinShaders::BasicTextShader::fragment_shader);
-            _shader->SetInteger("text", 0);
+        FreeTypeRenderer( ApplicationFactory& app, std::string fontname ) : TextRenderer(), _app(app) {
             // Configure VAO/VBO for texture quads
             glGenVertexArrays(1, &this->VAO);
             glGenBuffers(1, &this->VBO);
@@ -57,8 +52,9 @@ namespace Nova {
         virtual void RenderText( std::string text, float scale, float x, float y, float width, float height ){
 
             // Activate corresponding render state	
-            this->_shader->Use();
-            this->_shader->SetVector3f("textColor", glm::vec3(1,1,1) );
+            auto _shader = _app.GetShaderManager().GetShader( "BasicTextShader" );
+            _shader->SetInteger("text", 0);
+            _shader->SetVector3f("textColor", glm::vec3(1,1,1) );
             _shader->SetMatrix4("projection", glm::ortho(0.0f,
                                                          static_cast<GLfloat>(width),
                                                          static_cast<GLfloat>(height),

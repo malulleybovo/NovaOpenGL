@@ -3,6 +3,8 @@
 
 #include "Shader.h"
 #include <map>
+#include <string>
+#include <memory>
 
 namespace Nova {
 
@@ -11,14 +13,19 @@ namespace Nova {
     class ShaderManager{
     public:
         ShaderManager(ApplicationFactory& app);
+        virtual ~ShaderManager();
 
-        const Shader* GetBuiltinShader(const std::string& name);
-        const Shader* GetShader(const std::string& name);
+        std::unique_ptr<Shader> GetShader(const std::string& name);
         
     private:
+
+        unsigned int LoadFromFiles( std::string name );
+        unsigned int LoadFromString( const char* vertex_shader,
+                                     const char* fragment_shader,
+                                     const char* geometry_shader );
+        
         ApplicationFactory& _app;
-        std::map<std::string, Shader> _builtin_shaderRepo;
-        std::map<std::string, Shader> _shaderRepo;
+        std::map<std::string, unsigned int> _shaderRepo;
     };
 }
 

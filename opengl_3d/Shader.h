@@ -20,10 +20,8 @@ private:
     
 public:
     
-    Shader();
+    Shader(GLuint programID);
     ~Shader();
-    void LoadFromFiles(std::string vertex_path,std::string fragment_path);
-    void LoadFromString(const GLchar* vertex_shader,const GLchar* fragment_shader);
     GLuint GetProgramId() const ;
     // Utility functions
     void    SetFloat    (const GLchar *name, GLfloat value, GLboolean useShader = false);

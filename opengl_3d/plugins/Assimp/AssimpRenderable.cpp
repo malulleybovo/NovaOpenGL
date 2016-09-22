@@ -3,7 +3,6 @@
 #include "../../Shader.h"
 
 #include "AssimpRenderable_Model.h"
-#include "../../shaders/BasicMeshShader.h"
 
 #include <iostream>
 #include <fstream>
@@ -15,16 +14,12 @@ namespace Nova {
 
     class AssimpRenderable : public Renderable {        
         std::unique_ptr<AssimpRenderable_Model> _model;
-        std::unique_ptr<Shader> _shader;
         bool selected;
 
     public:
         AssimpRenderable( ApplicationFactory& app ) : Renderable( app ), selected(false)
         {
             _model = std::unique_ptr<AssimpRenderable_Model>( new AssimpRenderable_Model() );
-            _shader = std::unique_ptr<Shader>( new Shader() );
-            _shader->LoadFromString(NovaBuiltinShaders::BasicMeshShader::vertex_shader,
-                                    NovaBuiltinShaders::BasicMeshShader::fragment_shader);
         }
 
         virtual ~AssimpRenderable(){
@@ -42,7 +37,7 @@ namespace Nova {
             view = _app.GetWorld().Get_ViewMatrix();
             model = _app.GetWorld().Get_ModelMatrix();
             projection = _app.GetWorld().Get_ProjectionMatrix();
-            _shader->Use();
+            auto _shader = _app.GetShaderManager().GetShader( "BasicMeshShader" );
             _shader->SetMatrix4("projection",projection);
             _shader->SetMatrix4("view",view);
             _shader->SetMatrix4("model",model);

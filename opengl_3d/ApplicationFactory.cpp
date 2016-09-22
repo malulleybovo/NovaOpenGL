@@ -7,7 +7,10 @@ Nova::ApplicationFactory::ApplicationFactory( const Nova::Config& config ) : _co
     // This should be initialized first, in case other things want to initialize early bindings
     _ioservice = std::unique_ptr<IOService>( new IOService(*this) );
 
+    // The World is initialized second, as many things depend on the OpenGL context to be available;
     _world = std::unique_ptr<World>( new World(*this) );    
+    _world->Initialize(800,600);
+
     _scene = std::unique_ptr<Scene>( new Scene(*this) );
     _shaderman = std::unique_ptr<ShaderManager>( new ShaderManager(*this) );
     _pluginman = std::unique_ptr<PluginManager>( new PluginManager(*this) );
@@ -61,8 +64,7 @@ Nova::ApplicationFactory::Run()
 
     // Bind the mouse down to the scene to allow it to process selection attempts
     GetIOService().On( IOService::MOUSE_DOWN, [&](IOEvent& event){ _scene->Selection( event ); });
-
-    _world->Initialize(800,600);
+    
     std::cout << "Loading scene from '" << _config.scenepath << "'" << std::endl; 
     _scene->Configure( _config.scenepath );
     _scene->Load();

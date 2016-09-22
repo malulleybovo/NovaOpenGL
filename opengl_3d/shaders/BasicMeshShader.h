@@ -1,6 +1,7 @@
 namespace NovaBuiltinShaders{
 
     struct BasicMeshShader {
+        static constexpr char const * name = "BasicMeshShader";
         static constexpr char const * fragment_shader = R"lang::GLSL(
 #version 330 core
 in vec2 TexCoord;

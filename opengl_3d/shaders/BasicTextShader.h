@@ -1,6 +1,7 @@
 namespace NovaBuiltinShaders{
 
     struct BasicTextShader {
+        static constexpr char const * name = "BasicTextShader";
         static constexpr char const * fragment_shader = R"lang::GLSL(
 #version 330 core
 in vec2 TexCoords;
@@ -31,5 +32,5 @@ void main()
  
 )lang::GLSL";
         static constexpr char const * geometry_shader = nullptr;
-            };
+    };
 };

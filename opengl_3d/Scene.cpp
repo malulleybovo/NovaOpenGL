@@ -89,10 +89,6 @@ void
 Nova::Scene::Load()
 {
 
-    lineShader = std::unique_ptr<Shader>( new Shader() );
-    lineShader->LoadFromString(NovaBuiltinShaders::BasicLineShader::vertex_shader,
-                               NovaBuiltinShaders::BasicLineShader::fragment_shader);
-
     fs::path load_path;
     load_path /= _path;
     //load_path = fs::canonical(load_path);
@@ -147,7 +143,7 @@ void Nova::Scene::Draw()
         view = _app.GetWorld().Get_ViewMatrix();
         model = _app.GetWorld().Get_ModelMatrix();
         projection = _app.GetWorld().Get_ProjectionMatrix();
-        lineShader->Use();
+        auto lineShader = _app.GetShaderManager().GetShader("BasicLineShader");
         lineShader->SetMatrix4("projection",projection);
         lineShader->SetMatrix4("view",view);
         lineShader->SetMatrix4("model",model);

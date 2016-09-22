@@ -1,6 +1,7 @@
 namespace NovaBuiltinShaders{
 
     struct BasicLineShader {
+        static constexpr char const * name = "BasicLineShader";
         static constexpr char const * fragment_shader = R"lang::GLSL(
 #version 330 core
 out vec4 color;
