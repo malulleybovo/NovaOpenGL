@@ -42,6 +42,39 @@ namespace Nova{
         std::map< std::string , std::vector<IOEvent_Callback> > _command_callbacks;
         std::map< std::string , IOEvent_Callback > _command_priority_callback;
     };
+
+    struct Binding {
+        // Must match the following ...
+        int trigger;
+        int action;
+        int modifiers;
+
+        // ... to produce the following:
+        std::string command;
+        std::vector< std::string > args;
+
+        bool match( Binding other){
+            return other.trigger == trigger &&
+                other.action == action &&
+                other.modifiers == modifiers;
+        }
+    };
+    
+    class KeyBinder {
+    public:
+        KeyBinder( ApplicationFactory& app );
+        virtual ~KeyBinder();
+        
+        Binding Translate( std::string raw_binding ) const ;
+        void Bind( Binding b);
+
+        void Dispatch( const IOEvent& event ) const;
+
+    private:
+        ApplicationFactory& _app;
+        std::map<int, std::vector< Binding > > _boundActions;        
+    };
+
 }
 
 #endif

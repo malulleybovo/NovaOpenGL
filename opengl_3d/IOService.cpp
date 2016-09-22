@@ -193,3 +193,61 @@ Nova::IOService::PriorityClear( Nova::IOService::EventType type ){
         _priority_callback.erase( res );
     }  
 }
+
+//######################################################################33
+//
+//     class KeyBinder
+//
+//######################################################################33
+
+
+Nova::KeyBinder::KeyBinder( ApplicationFactory& app ) : _app( app )
+{
+
+
+}
+
+
+Nova::KeyBinder::~KeyBinder()
+{
+
+
+}
+
+
+Nova::Binding
+Nova::KeyBinder::Translate( std::string raw_binding ) const
+{
+    
+
+    return Binding();
+}
+
+void
+Nova::KeyBinder::Bind( Nova::Binding binding )
+{
+    auto res = _boundActions.find( binding.trigger );
+    if( res != _boundActions.end() ){
+        for( auto activeBinding : res->second ) {
+            if( activeBinding.match( binding ) )
+                throw std::runtime_error( "Cannot perform binding. Binding trigger already bound to command." );
+        }
+        // If we passed this section, our binding is unique!
+        res->second.push_back( binding );
+    }
+    else{
+        _boundActions.insert( std::make_pair( binding.trigger, std::vector< Binding >() ) );
+        _boundActions.at( binding.trigger ).push_back( binding );
+    }
+}
+
+void
+Nova::KeyBinder::Dispatch( const IOEvent& event ) const
+{
+
+
+}
+
+
+
+

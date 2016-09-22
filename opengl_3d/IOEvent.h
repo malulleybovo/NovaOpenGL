@@ -12,10 +12,13 @@ namespace Nova{
         enum EVENT_TYPE { TIME = 0, MOUSEBUTTON = 1, MOUSEMOVE = 2,
                           KEYBOARD = 4, DRAW = 8, DROP = 16, SCROLL=32,
                           COMMAND=64};
+        
         enum EVENT_MOD { mSHIFT = 1, mCONTROL = 2, mALT = 4, mSUPER = 8};
-        enum MOUSE_BUTTON { M_LEFT = 1, M_RIGHT = 2, M_MIDDLE = 4, M_OTHER = 8 };
+
         enum MOUSE_ACTION { M_UP = 1, M_DOWN = 2 };
-        enum KEY_ACTION { K_UP = 1, K_DOWN = 2, K_HOLD = 4 };
+        enum KEY_ACTION { K_UP = 3, K_DOWN = 4, K_HOLD = 5 };
+
+        enum MOUSE_BUTTON { M_LEFT = 1, M_RIGHT = 2, M_MIDDLE = 4, M_OTHER = 8, M_MOVE=16 };
         enum KEY_CODE {KEY_UNKNOWN = -1,KEY_SPACE = 32,KEY_APOSTROPHE = 39,KEY_COMMA = 44,KEY_MINUS = 45,
                        KEY_PERIOD = 46,KEY_SLASH = 47,KEY_0 = 48,KEY_1 = 49,KEY_2 = 50,KEY_3 = 51,
                        KEY_4 = 52,KEY_5 = 53,KEY_6 = 54,KEY_7 = 55,KEY_8 = 56,KEY_9 = 57,KEY_SEMICOLON = 59,
@@ -43,6 +46,7 @@ namespace Nova{
 
 
         EVENT_TYPE type;
+        unsigned int data_flags;
 
         struct _mousebutton_data { 
             MOUSE_BUTTON button;
@@ -85,8 +89,8 @@ namespace Nova{
             std::vector<std::string> args;
         };
 
-        IOEvent() : type(TIME) {}
-        IOEvent( EVENT_TYPE _type ) : type(_type){
+        IOEvent() : type(TIME), data_flags(TIME) {}
+        IOEvent( EVENT_TYPE _type ) : type(_type), data_flags(_type) {
             if( type == MOUSEBUTTON )
                 mousebutton_data = std::unique_ptr<_mousebutton_data>( new _mousebutton_data() );
             if( type == MOUSEMOVE )
@@ -101,7 +105,6 @@ namespace Nova{
                 scroll_data = std::unique_ptr<_scroll_data>( new _scroll_data() );
             if( type == COMMAND )
                 command_data = std::unique_ptr<_command_data>( new _command_data() );
-
         }
         
         std::unique_ptr<_mousebutton_data> mousebutton_data;
