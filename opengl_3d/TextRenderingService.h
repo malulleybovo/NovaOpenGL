@@ -26,6 +26,7 @@ namespace Nova {
         void UpdateScreenSize(const IOEvent& event);
         void RegisterProvider( std::unique_ptr< TextRenderer > provider ); 
         void Render(  std::string text, float scaling, float x, float y );
+        bool HasProvider() const {return (bool)(_provider);};
     private:
         int width;
         int height;

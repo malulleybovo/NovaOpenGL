@@ -42,27 +42,26 @@ Nova::RenderableManager::RegisterRenderable( std::string path )
     if( renderablePath.has_extension() ){
         std::string ext = renderablePath.extension().native();
         ext = ext.substr(1); // Strip leading '.'
-	std::cout << "Looking for a factory to load a '" << ext << "' file." << std::endl;
-	for( auto& factory : _factories ){
-	  if( factory->AcceptExtension( ext ) )
-	    {
-	      std::unique_ptr<Renderable> renderable;
-	      try{
-		renderable = std::unique_ptr<Renderable>(factory->Create( _app, renderablePath.native()));
-	      }
-	      catch( std::exception& e ){
-		std::cout << "Failed to load renderable: " << e.what() << std::endl;
-	      }
-	      unsigned long renderableId = _resource_counter++;
-	      _resources.insert( std::make_pair( renderableId, std::move( renderable )));
-	      return renderableId;
-	    }
-	}
-	throw std::runtime_error( std::string("Unable to load renderable. No factory available to handle type: ") + ext );
+        //std::cout << "Looking for a factory to load a '" << ext << "' file." << std::endl;
+        for( auto& factory : _factories ){
+            if( factory->AcceptExtension( ext ) )
+                {
+                    std::unique_ptr<Renderable> renderable;
+                    try{
+                        renderable = std::unique_ptr<Renderable>(factory->Create( _app, renderablePath.native()));
+                    }
+                    catch( std::exception& e ){
+                        std::cout << "Failed to load renderable: " << e.what() << std::endl;
+                    }
+                    unsigned long renderableId = _resource_counter++;
+                    _resources.insert( std::make_pair( renderableId, std::move( renderable )));
+                    return renderableId;
+                }
+        }
+        throw std::runtime_error( std::string("Unable to load renderable. No factory available to handle type: ") + ext );
     }
     else{
-      throw std::runtime_error( "Unable to load renderable. No identifiable extension." );
-
+        throw std::runtime_error( "Unable to load renderable. No identifiable extension." );        
     }
 }
 

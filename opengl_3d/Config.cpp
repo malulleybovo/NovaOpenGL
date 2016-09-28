@@ -24,6 +24,7 @@ Nova::Config::Parse(const std::vector<std::string>& paths, int argc, char** argv
         ("config,c", po::value<std::string>(&config_file), "name of a file of a configuration.")
         ("scenepath,s", po::value<std::string>(&scenepath), "path to the scene to display.")
         ("pluginpath,p", po::value<std::vector<std::string> >(&pluginpaths)->default_value(std::vector<std::string>(1,"./plugins"),"./plugins"), "path to search for plugins in.")
+        ("fontname",po::value<std::string>(&fontname)->default_value(std::string("fonts/arial.ttf")),"path to the font to use for rendering")
         ;
     
     // Declare a group of options that will be 

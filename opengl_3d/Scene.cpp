@@ -82,7 +82,7 @@ Nova::Scene::Configure( std::string path ){
 
     for( auto plugin : pluginList ){
       _app.GetPluginManager().LoadPlugin( plugin );
-    }
+    }    
 }
 
 void
@@ -90,10 +90,11 @@ Nova::Scene::Load()
 {
 
     fs::path load_path;
-    load_path /= _path;
+    load_path /= _path;    
     //load_path = fs::canonical(load_path);
-    std::cout << "Loading " << load_path.native() << std::endl;
-    
+    //std::cout << "Loading " << load_path.native() << std::endl;
+    load_path /= "./";
+
     fs::directory_iterator diter( load_path );
     for( ; diter != fs::directory_iterator(); diter++){
         unsigned long objectId = _app.GetRenderableManager().MaxId();

@@ -23,6 +23,7 @@ namespace Nova{
             ApplicationFactory( const Config& config );
             void Run();
 
+            const Config& GetConfig(){return _config;};
             IOService& GetIOService();
             ShaderManager& GetShaderManager();
             PluginManager& GetPluginManager();
@@ -34,6 +35,8 @@ namespace Nova{
             KeyBinder& GetKeyBinder();
 	    
         private:        
+            void RunSanityChecks() const;
+
             Config _config;
             std::unique_ptr<IOService> _ioservice;
             std::unique_ptr<World> _world;

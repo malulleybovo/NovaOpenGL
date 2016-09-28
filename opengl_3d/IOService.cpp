@@ -322,7 +322,6 @@ Nova::KeyBinder::Bind( Nova::Binding binding )
     if( FindBinding( binding ) )
         throw std::runtime_error( "Cannot perform binding. Binding trigger already bound to command." );
     else{
-        std::cout << "Binding " << binding.trigger << " " << binding.action << " " << binding.modifiers << "  to Command: " << binding.command << std::endl;
         _boundActions.insert( std::make_pair( binding.trigger, std::vector< Binding >() ) );
         _boundActions.at( binding.trigger ).push_back( binding );
     }

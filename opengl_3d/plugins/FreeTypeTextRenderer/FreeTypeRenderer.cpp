@@ -40,8 +40,14 @@ namespace Nova {
             glBindVertexArray(0);
 
             float font_size = 12 * (app.GetWorld().Get_DPI() / 72.0f);
-
-            LoadFont( fontname, font_size );
+            try{
+                LoadFont( fontname, font_size );
+            }
+            catch( std::exception& e ){
+                std::cout << e.what() << std::endl;
+                // Fallback to block font.
+                LoadFont( font_size );
+            }
         }
         
         virtual ~FreeTypeRenderer() {
@@ -117,8 +123,9 @@ namespace Nova {
                 std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
             // Load font as face
             FT_Face face;
-            if (FT_New_Face(ft, font.c_str(), 0, &face))
-                std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+            if (FT_New_Face(ft, font.c_str(), 0, &face)){
+                throw std::runtime_error( std::string( "ERROR::FREETYPE: Failed to load font: '" ) + font + std::string("'") );
+            }
             // Set size to load glyphs as
             FT_Set_Pixel_Sizes(face, 0, fontSize);
             // Disable byte-alignment restriction
@@ -168,13 +175,57 @@ namespace Nova {
             FT_Done_FreeType(ft);
 
         }
-        
+
+        void LoadFont(int fontSize ){
+            // This is a dummy function to load a blank font into the renderer in case FreeType has had an issue.
+            
+            // First clear the previously loaded Characters
+            this->Characters.clear();
+            // Disable byte-alignment restriction
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1); 
+            char* blankGlyph = new char[fontSize*fontSize];
+            memset( blankGlyph, 255, fontSize*fontSize*sizeof(char) );
+            // Then for the first 128 ASCII characters, pre-load/compile their characters and store them
+            GLuint texture;
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexImage2D(
+                         GL_TEXTURE_2D,
+                         0,
+                         GL_RED,
+                         fontSize,
+                         fontSize,
+                         0,
+                         GL_RED,
+                         GL_UNSIGNED_BYTE,
+                         blankGlyph
+                                 );
+            // Set texture options
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            for (GLubyte c = 0; c < 128; c++) // lol see what I did there 
+                {                        
+                    // Now store character for later use
+                    Character character = {
+                        texture,
+                        glm::ivec2(fontSize*(2.f/3.f), fontSize),
+                        glm::ivec2(0, fontSize),
+                        GLuint((fontSize)<<6)
+                    };
+                    Characters.insert(std::pair<GLchar, Character>(c, character));
+                }
+            glBindTexture(GL_TEXTURE_2D, 0);
+            delete [] blankGlyph;
+        }
     };
     
 }
 
 extern "C" void registerPlugin(Nova::ApplicationFactory& app) {
-    app.GetTextRenderingService().RegisterProvider( std::move( std::unique_ptr<Nova::TextRenderer>( new Nova::FreeTypeRenderer(app, "fonts/arial.ttf") )));
+    std::string fontname = app.GetConfig().fontname;
+    app.GetTextRenderingService().RegisterProvider( std::move( std::unique_ptr<Nova::TextRenderer>( new Nova::FreeTypeRenderer(app, fontname ) )));
 }
 
 extern "C" int getEngineVersion() {

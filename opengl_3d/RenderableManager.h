@@ -42,11 +42,13 @@ namespace Nova {
         virtual ~RenderableManager();
 
         unsigned long RegisterRenderable( std::string path );
-	void AddFactory( std::unique_ptr<RenderableFactory> );
+        void AddFactory( std::unique_ptr<RenderableFactory> );
 	  
         Renderable* Get(unsigned long id);
         unsigned long MaxId();
         
+        int GetFactoryCount() const { return _factories.size(); };
+
     private:
         ApplicationFactory& _app;
 

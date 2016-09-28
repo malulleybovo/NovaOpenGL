@@ -18,9 +18,6 @@ Nova::CommandDispatch::~CommandDispatch()
 void
 Nova::CommandDispatch::Input( const Nova::IOEvent& event )
 {
-    std::cout << "Console Input" << std::endl;
-    std::cout << event.key_data->key << std::endl;
-
     if( _commandstarted ){
         if( event.key_data->key == IOEvent::KEY_GRAVE_ACCENT ){
             _app.GetIOService().PriorityClear( IOService::KEY_DOWN );

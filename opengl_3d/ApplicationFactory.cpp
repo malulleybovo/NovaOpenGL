@@ -32,19 +32,22 @@ Nova::ApplicationFactory::ApplicationFactory( const Nova::Config& config ) : _co
     GetIOService().On( IOService::DROP, [&](IOEvent& event){_keybinder->Dispatch( event ); });
     
     // Load all bindings from the config...
+    std::cout << "Reading key bindings..." << std::endl;
     for( auto raw_binding : _config.bindings ){
         Binding binding;        
-        std::cout << "Reading Binding:  " << raw_binding << std::endl;
+        //std::cout << "Reading Binding:  " << raw_binding << std::endl;
         bool res = _keybinder->Translate( raw_binding, binding );
         if( res ){
             try{
                 _keybinder->Bind( binding );
             }
             catch( std::exception& e ){
+                std::cout << "Binding:  " << raw_binding << std::endl;
                 std::cout << e.what() << std::endl;
             }
         }        
         else{
+            std::cout << "Binding:  " << raw_binding << std::endl;
             std::cout << "Could not bind. Inproperly formatted binding command." << std::endl;
         }
     }
@@ -86,6 +89,16 @@ Nova::KeyBinder&
 Nova::ApplicationFactory::GetKeyBinder()
 { return *(_keybinder.get()); }
 
+void
+Nova::ApplicationFactory::RunSanityChecks() const {
+    if( ! _textrenderingservice->HasProvider() ){
+        std::cout << "Warning: No text rendering provider has been provided. Text rendering will be disabled." << std::endl;
+    }
+    if( _renderableman->GetFactoryCount() == 0 ) {
+        std::cout << "Warning: No renderable factories have been registered. The scene won't be able to draw anything." << std::endl;
+    }
+}
+
 void 
 Nova::ApplicationFactory::Run()
 {
@@ -101,6 +114,9 @@ Nova::ApplicationFactory::Run()
     
     std::cout << "Loading scene from '" << _config.scenepath << "'" << std::endl; 
     _scene->Configure( _config.scenepath );
+
+    RunSanityChecks();
+
     _scene->Load();
     _world->Main_Loop();
 }
