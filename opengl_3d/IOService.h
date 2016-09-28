@@ -65,9 +65,10 @@ namespace Nova{
         KeyBinder( ApplicationFactory& app );
         virtual ~KeyBinder();
         
-        Binding Translate( std::string raw_binding ) const ;
+        bool Translate( std::string raw_binding, Binding& binding ) const ;
         void Bind( Binding b);
-
+        void UnBind( Binding b);
+        
         void Dispatch( const IOEvent& event ) const;
 
     private:

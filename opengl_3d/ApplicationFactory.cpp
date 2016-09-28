@@ -18,14 +18,32 @@ Nova::ApplicationFactory::ApplicationFactory( const Nova::Config& config ) : _co
     _renderableman = std::unique_ptr<RenderableManager>( new RenderableManager(*this) );
     _textrenderingservice = std::unique_ptr<TextRenderingService>( new TextRenderingService(*this) );
     _commanddispatch = std::unique_ptr<CommandDispatch>( new CommandDispatch(*this) );
+    _keybinder = std::unique_ptr<KeyBinder>( new KeyBinder(*this) );
 
-    KeyBinder b( *this );
-
-    for( auto binding : _config.bindings ){
-        std::cout << binding << std::endl;
-        b.Translate( binding );
+    //GetIOService().On( IOService::TIME, [&](IOEvent& event){_keybinder->Dispatch( event ); });
+    GetIOService().On( IOService::REDRAW, [&](IOEvent& event){_keybinder->Dispatch( event ); });
+    GetIOService().On( IOService::MOUSE_DOWN, [&](IOEvent& event){_keybinder->Dispatch( event ); });
+    GetIOService().On( IOService::MOUSE_UP, [&](IOEvent& event){_keybinder->Dispatch( event ); });
+    GetIOService().On( IOService::MOUSE_MOVE, [&](IOEvent& event){_keybinder->Dispatch( event ); });
+    GetIOService().On( IOService::KEY_DOWN, [&](IOEvent& event){_keybinder->Dispatch( event ); });
+    GetIOService().On( IOService::KEY_UP, [&](IOEvent& event){_keybinder->Dispatch( event ); });
+    GetIOService().On( IOService::KEY_HOLD, [&](IOEvent& event){_keybinder->Dispatch( event ); });
+    GetIOService().On( IOService::SCROLL, [&](IOEvent& event){_keybinder->Dispatch( event ); });
+    GetIOService().On( IOService::DROP, [&](IOEvent& event){_keybinder->Dispatch( event ); });
+    
+    // Load all bindings from the config...
+    for( auto raw_binding : _config.bindings ){
+        Binding binding;        
+        bool res = _keybinder->Translate( raw_binding, binding );
+        if( res ){
+            try{
+                _keybinder->Bind( binding );
+            }
+            catch( std::exception& e ){
+                std::cout << e.what() << std::endl;
+            }
+        }        
     }
-
 }
 
 Nova::IOService&
@@ -60,15 +78,19 @@ Nova::CommandDispatch&
 Nova::ApplicationFactory::GetCommandDispatch()
 { return *(_commanddispatch.get()); }
 
+Nova::KeyBinder&
+Nova::ApplicationFactory::GetKeyBinder()
+{ return *(_keybinder.get()); }
+
 void 
 Nova::ApplicationFactory::Run()
 {
     // Bind screen redraw events to text renderer to prevent distortion
-    GetIOService().On( IOService::REDRAW, [&](IOEvent& event){_textrenderingservice->UpdateScreenSize( event ); });
+    GetIOService().On( "WINDOW-RESIZE", [&](IOEvent& event){_textrenderingservice->UpdateScreenSize( event ); });
 
     // Bind the keydown and time events for the command dispatcher to read user input and render text
-    GetIOService().On( IOService::KEY_DOWN, [&](IOEvent& event){ _commanddispatch->Input( event ); });
-    GetIOService().On( IOService::TIME, [&](IOEvent& event){  _commanddispatch->Render( event ); });
+    GetIOService().On( "ACTIVATE-CONSOLE", [&](IOEvent& event){ _commanddispatch->Input( event ); });
+    GetIOService().On( "RENDER-FRAME", [&](IOEvent& event){  _commanddispatch->Render( event ); });
 
     // Bind the mouse down to the scene to allow it to process selection attempts
     GetIOService().On( IOService::MOUSE_DOWN, [&](IOEvent& event){ _scene->Selection( event ); });

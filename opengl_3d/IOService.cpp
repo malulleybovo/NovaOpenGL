@@ -102,8 +102,9 @@ Nova::IOService::Trigger( Nova::IOEvent& event )
         // Then check all attached events.
         {
             auto res = _command_callbacks.find( command );
-            if( res != _command_callbacks.end() ){
+            if( res != _command_callbacks.end() ){                
                 for( auto callback : res->second ){
+                    std::cout << "Calling callback for event " <<  command  << " : " << callback.target_type().name()<< std::endl;
                     callback( event );
                 }
             }
@@ -128,8 +129,8 @@ Nova::IOService::Trigger( Nova::IOEvent& event )
             auto res = _callbacks.find( translateEventType(event) );
             if( res != _callbacks.end() ){
                 for( auto callback : res->second ){
-                    //if( translateEventType(event) != TIME )
-                    //    std::cout << "Calling callback for event " <<  translateEventType(event) << " : " << callback.target_type().name()<< std::endl;
+                    if( translateEventType(event) != TIME )
+                    std::cout << "Calling callback for event " <<  translateEventType(event) << " : " << callback.target_type().name()<< std::endl;
                     callback( event );
                 }
             }
@@ -227,76 +228,49 @@ Nova::KeyBinder::~KeyBinder()
 }
 
 
-Nova::Binding
-Nova::KeyBinder::Translate( std::string raw_binding ) const
+bool
+Nova::KeyBinder::Translate( std::string raw_binding, Nova::Binding& binding ) const
 {    
-    std::string r( R"((\w+)\s+(\w+)(\s+(?:(MOD_SHIFT)|(MOD_ALT)|(MOD_CONTROL)|(MOD_SUPER))?){0,4}\s+([A-Z0-9-]+)((\s+\w+)*))");
+    std::string r( R"((\w+)\s+(\w+)(?:(?:\s+(?:(MOD_SHIFT)|(MOD_ALT)|(MOD_CONTROL)|(MOD_SUPER)))*)\s+((?:[A-Z0-9-]+\s?))\s+((?:[A-Z0-9-]+\s?)*))");
 
-// ([-A-Z0-9]+)([[:space:]][-A-Z0-9]+)*" );
     _rns::smatch m;
-    try{
-        bool results = _rns::regex_search(raw_binding, m, _rns::regex(r, _rns::regex::ECMAScript));
-        if(
+    bool results = _rns::regex_search(raw_binding, m, _rns::regex(r, _rns::regex::ECMAScript));
+    if(
 #if defined(USE_C11_REGEX)
-           m.empty()
+       m.empty()
 #else
-           !results
+       !results
 #endif
-           ) {
-            std::cout << "input=[" << raw_binding << "], regex=[" << r << "]: NO MATCH\n";
-        } else {
-            std::cout << "input=[" << raw_binding << "], regex=[" << r << "]: ";
-            std::cout << "prefix=[" << m.prefix() << "] ";
-            for(std::size_t n = 0; n < m.size(); ++n)
-                std::cout << " m[" << n << "]=[" << m[n] << "] ";
-            std::cout << "suffix=[" << m.suffix() << "]\n";
+       ) {
+        return false;
+    }
+    else {
+        // Parse out the match components
+        int trigger = IOEvent::TranslateCode(m[1]);
+        int action = IOEvent::TranslateAction(m[2]);
+        int mods = (m[3]!="" ? IOEvent::mSHIFT : 0 ) |
+            (m[4]!="" ? IOEvent::mCONTROL : 0 ) |
+            (m[5]!="" ? IOEvent::mALT : 0 ) |
+            (m[6]!="" ? IOEvent::mSUPER : 0 );
+        std::string command_str = m[7];
+        if( trigger == -1 || action == -1 )
+            return false;
+        binding.trigger = trigger;
+        binding.action = action;
+        binding.modifiers = mods;
+        binding.command = command_str;
+
+        std::stringstream arg_tokenizer;
+        arg_tokenizer.str( m[8] );
+        while( arg_tokenizer ){
+            std::string arg;
+            arg_tokenizer >> arg;
+            binding.args.push_back( arg );
         }
+        
+        return true;
     }
-    catch (const _rns::regex_error& e) {
-        std::cout << "regex_error caught: " << e.what() << '\n';
-        if( e.code() == _rns::regex_constants::error_collate)
-            std::cout << "the expression contains an invalid collating element name" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_ctype)
-            std::cout << "the expression contains an invalid character class name" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_escape)
-            std::cout << "the expression contains an invalid escaped character or a trailing escape" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_backref)
-            std::cout << "the expression contains an invalid back reference" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_brack)
-            std::cout << "the expression contains mismatched square brackets ('[' and ']')" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_paren)
-            std::cout << "the expression contains mismatched parentheses ('(' and ')')" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_brace)
-            std::cout << "the expression contains mismatched curly braces ('{' and '}')" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_badbrace)
-            std::cout << "the expression contains an invalid range in a {} expression" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_range)
-            std::cout << "the expression contains an invalid character range (e.g. [b-a])" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_space)
-            std::cout << "there was not enough memory to convert the expression into a finite state machine" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_badrepeat)
-            std::cout << "one of *?+{ was not preceded by a valid regular expression" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_complexity)
-            std::cout << "the complexity of an attempted match exceeded a predefined level" << std::endl;
-
-        if( e.code() == _rns::regex_constants::error_stack)
-            std::cout << "there was not enough memory to perform a match" << std::endl;
-    }
-    catch( std::exception& e ){
-        std::cout << e.what() << std::endl;
-    }
-    return Binding();
+    
 }
 
 void
@@ -307,6 +281,20 @@ Nova::KeyBinder::Bind( Nova::Binding binding )
     else{
         _boundActions.insert( std::make_pair( binding.trigger, std::vector< Binding >() ) );
         _boundActions.at( binding.trigger ).push_back( binding );
+    }
+}
+
+void
+Nova::KeyBinder::UnBind( Nova::Binding binding )
+{
+    auto res = _boundActions.find( binding.trigger );
+    if( res != _boundActions.end() ){
+        for( auto iter = res->second.begin(); iter != res->second.end(); iter++){
+            if( binding.match( (*iter) ) ){
+                res->second.erase( iter );
+                break;
+            }
+        }
     }
 }
 

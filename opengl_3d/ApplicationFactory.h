@@ -31,6 +31,7 @@ namespace Nova{
             World&         GetWorld();
             TextRenderingService& GetTextRenderingService();
             CommandDispatch& GetCommandDispatch();
+            KeyBinder& GetKeyBinder();
 	    
         private:        
             Config _config;
@@ -42,6 +43,7 @@ namespace Nova{
             std::unique_ptr<RenderableManager> _renderableman;
             std::unique_ptr<TextRenderingService> _textrenderingservice;
             std::unique_ptr<CommandDispatch> _commanddispatch;
+            std::unique_ptr<KeyBinder> _keybinder;
     };
 }
 
