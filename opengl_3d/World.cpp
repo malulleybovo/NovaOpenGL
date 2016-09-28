@@ -268,11 +268,16 @@ void World::Keyboard_Callback(GLFWwindow* window,int key,int scancode,int action
     IOEvent event(IOEvent::KEYBOARD);
     event.key_data->key = IOEvent::KEY_CODE(key);
     event.key_data->scancode = scancode;
-    event.key_data->mods =
-        ( (mode & GLFW_MOD_SUPER != 0 ) ?  IOEvent::mSHIFT : 0 )  | 
-        ( (mode & GLFW_MOD_ALT != 0 ) ?  IOEvent::mALT : 0 )  | 
-        ( (mode & GLFW_MOD_CONTROL != 0 ) ?  IOEvent::mCONTROL : 0 )  | 
-        ( (mode & GLFW_MOD_SUPER != 0 ) ?  IOEvent::mSUPER : 0  );
+    event.key_data->mods = 0;
+    if( mode & GLFW_MOD_SHIFT )
+        event.key_data->mods |= IOEvent::mSHIFT;
+    if( mode & GLFW_MOD_CONTROL )
+        event.key_data->mods |= IOEvent::mCONTROL;
+    if( mode & GLFW_MOD_ALT )
+        event.key_data->mods |= IOEvent::mALT;
+    if( mode & GLFW_MOD_SUPER )
+        event.key_data->mods |= IOEvent::mSUPER;
+
     event.currentTime = glfwGetTime();
     switch( action ){
     case GLFW_PRESS:
@@ -289,7 +294,7 @@ void World::Keyboard_Callback(GLFWwindow* window,int key,int scancode,int action
     world->_app.GetIOService().Trigger( event );
 }
 
-void World::Mouse_Button_Callback(GLFWwindow* window,int button,int state,int mods)
+void World::Mouse_Button_Callback(GLFWwindow* window,int button,int state,int mode)
 {
     World *world=static_cast<World*>(glfwGetWindowUserPointer(window));
     double x,y;
@@ -314,11 +319,16 @@ void World::Mouse_Button_Callback(GLFWwindow* window,int button,int state,int mo
     event.mousebutton_data->button_raw = button;
     event.mousebutton_data->x = x;
     event.mousebutton_data->y = y;
-    event.mousebutton_data->mods =
-        ( (mods & GLFW_MOD_SUPER != 0 ) ?  IOEvent::mSHIFT : 0 )  | 
-        ( (mods & GLFW_MOD_ALT != 0 ) ?  IOEvent::mALT : 0 )  | 
-        ( (mods & GLFW_MOD_CONTROL != 0 ) ?  IOEvent::mCONTROL : 0 )  | 
-        ( (mods & GLFW_MOD_SUPER != 0 ) ?  IOEvent::mSUPER : 0  );
+    event.mousebutton_data->mods = 0;
+    if( mode & GLFW_MOD_SHIFT )
+        event.mousebutton_data->mods |= IOEvent::mSHIFT;
+    if( mode & GLFW_MOD_CONTROL )
+        event.mousebutton_data->mods |= IOEvent::mCONTROL;
+    if( mode & GLFW_MOD_ALT )
+        event.mousebutton_data->mods |= IOEvent::mALT;
+    if( mode & GLFW_MOD_SUPER )
+        event.mousebutton_data->mods |= IOEvent::mSUPER;
+
     switch( state ){
     case GLFW_PRESS:
         event.mousebutton_data->action = IOEvent::M_DOWN;

@@ -20,7 +20,7 @@ Nova::ApplicationFactory::ApplicationFactory( const Nova::Config& config ) : _co
     _commanddispatch = std::unique_ptr<CommandDispatch>( new CommandDispatch(*this) );
     _keybinder = std::unique_ptr<KeyBinder>( new KeyBinder(*this) );
 
-    //GetIOService().On( IOService::TIME, [&](IOEvent& event){_keybinder->Dispatch( event ); });
+    GetIOService().On( IOService::TIME, [&](IOEvent& event){_keybinder->Dispatch( event ); });
     GetIOService().On( IOService::REDRAW, [&](IOEvent& event){_keybinder->Dispatch( event ); });
     GetIOService().On( IOService::MOUSE_DOWN, [&](IOEvent& event){_keybinder->Dispatch( event ); });
     GetIOService().On( IOService::MOUSE_UP, [&](IOEvent& event){_keybinder->Dispatch( event ); });
@@ -34,6 +34,7 @@ Nova::ApplicationFactory::ApplicationFactory( const Nova::Config& config ) : _co
     // Load all bindings from the config...
     for( auto raw_binding : _config.bindings ){
         Binding binding;        
+        std::cout << "Reading Binding:  " << raw_binding << std::endl;
         bool res = _keybinder->Translate( raw_binding, binding );
         if( res ){
             try{
@@ -43,6 +44,9 @@ Nova::ApplicationFactory::ApplicationFactory( const Nova::Config& config ) : _co
                 std::cout << e.what() << std::endl;
             }
         }        
+        else{
+            std::cout << "Could not bind. Inproperly formatted binding command." << std::endl;
+        }
     }
 }
 
@@ -93,7 +97,7 @@ Nova::ApplicationFactory::Run()
     GetIOService().On( "RENDER-FRAME", [&](IOEvent& event){  _commanddispatch->Render( event ); });
 
     // Bind the mouse down to the scene to allow it to process selection attempts
-    GetIOService().On( IOService::MOUSE_DOWN, [&](IOEvent& event){ _scene->Selection( event ); });
+    GetIOService().On( "START-SELECTION", [&](IOEvent& event){ _scene->Selection( event ); });
     
     std::cout << "Loading scene from '" << _config.scenepath << "'" << std::endl; 
     _scene->Configure( _config.scenepath );

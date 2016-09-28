@@ -1,7 +1,7 @@
 #include "IOService.h"
 #include "ApplicationFactory.h"
 #include <iostream>
-
+#include <iomanip>
 // C++11 support for regular expressions is still rather spotty.
 // Fallback to boost if not supported.
 #if defined(USE_C11_REGEX)
@@ -104,7 +104,7 @@ Nova::IOService::Trigger( Nova::IOEvent& event )
             auto res = _command_callbacks.find( command );
             if( res != _command_callbacks.end() ){                
                 for( auto callback : res->second ){
-                    std::cout << "Calling callback for event " <<  command  << " : " << callback.target_type().name()<< std::endl;
+//std::cout << "Calling callback for event " <<  command  << " : " << callback.target_type().name()<< std::endl;
                     callback( event );
                 }
             }
@@ -129,8 +129,8 @@ Nova::IOService::Trigger( Nova::IOEvent& event )
             auto res = _callbacks.find( translateEventType(event) );
             if( res != _callbacks.end() ){
                 for( auto callback : res->second ){
-                    if( translateEventType(event) != TIME )
-                    std::cout << "Calling callback for event " <<  translateEventType(event) << " : " << callback.target_type().name()<< std::endl;
+//if( translateEventType(event) != TIME )
+                        //std::cout << "Calling callback for event " <<  translateEventType(event) << " : " << callback.target_type().name()<< std::endl;
                     callback( event );
                 }
             }
@@ -216,8 +216,7 @@ Nova::IOService::PriorityClear( Nova::IOService::EventType type ){
 
 Nova::KeyBinder::KeyBinder( ApplicationFactory& app ) : _app( app )
 {
-    
-
+    _app.GetIOService().On("LIST-KEYBINDINGS", [&](Nova::IOEvent& event){ this->ListKeyBindings();});
 }
 
 
@@ -227,11 +226,52 @@ Nova::KeyBinder::~KeyBinder()
 
 }
 
+void
+Nova::KeyBinder::ListKeyBindings() const
+{
+    struct displayBinding {
+        std::string trigger;
+        std::string command;
+    };
+
+    std::vector<displayBinding> display;
+    int max_trigger_len = 0;
+
+    std::cout << "============================================" << std::endl;
+    std::cout << "            Active Key Bindings             " << std::endl;
+    std::cout << "============================================" << std::endl;
+    for( auto& triggerGroup : _boundActions ){
+        for( auto& binding : triggerGroup.second ){
+            displayBinding db;
+            if( binding.modifiers & IOEvent::mSHIFT )
+                db.trigger += "SHIFT-";
+            if( binding.modifiers & IOEvent::mALT )
+                db.trigger += "ALT-";
+            if( binding.modifiers & IOEvent::mCONTROL )
+                db.trigger += "CTRL-";
+            if( binding.modifiers & IOEvent::mSUPER )
+                db.trigger += "SUPER-";
+            db.trigger +=IOEvent::TranslateCode( binding.trigger );
+            db.command = binding.command;
+            for( auto& arg : binding.args )
+                db.command += std::string(" ") + arg;
+            max_trigger_len = std::max( max_trigger_len, (int)db.trigger.length() );
+            display.push_back( db );
+        }
+    }
+
+    for( auto db : display ){
+        std::cout << std::left << std::setw(max_trigger_len) << db.trigger << "  =>  " << db.command << std::endl;
+    }
+
+
+}
+
 
 bool
 Nova::KeyBinder::Translate( std::string raw_binding, Nova::Binding& binding ) const
 {    
-    std::string r( R"((\w+)\s+(\w+)(?:(?:\s+(?:(MOD_SHIFT)|(MOD_ALT)|(MOD_CONTROL)|(MOD_SUPER)))*)\s+((?:[A-Z0-9-]+\s?))\s+((?:[A-Z0-9-]+\s?)*))");
+    std::string r( R"((\w+)\s+(\w+)(?:(?:\s+(?:(MOD_SHIFT)|(MOD_ALT)|(MOD_CONTROL)|(MOD_SUPER)))*)\s+((?:[A-Z0-9-]+))\s*((?:[A-Z0-9-]+(?:)|\s+(?=[A-Z0-9-]+))*)\s*)");
 
     _rns::smatch m;
     bool results = _rns::regex_search(raw_binding, m, _rns::regex(r, _rns::regex::ECMAScript));
@@ -242,6 +282,7 @@ Nova::KeyBinder::Translate( std::string raw_binding, Nova::Binding& binding ) co
        !results
 #endif
        ) {
+        std::cout << "Regex failed to match." << std::endl;
         return false;
     }
     else {
@@ -249,12 +290,14 @@ Nova::KeyBinder::Translate( std::string raw_binding, Nova::Binding& binding ) co
         int trigger = IOEvent::TranslateCode(m[1]);
         int action = IOEvent::TranslateAction(m[2]);
         int mods = (m[3]!="" ? IOEvent::mSHIFT : 0 ) |
-            (m[4]!="" ? IOEvent::mCONTROL : 0 ) |
-            (m[5]!="" ? IOEvent::mALT : 0 ) |
+            (m[4]!="" ? IOEvent::mALT : 0 ) |
+            (m[5]!="" ? IOEvent::mCONTROL : 0 ) |
             (m[6]!="" ? IOEvent::mSUPER : 0 );
         std::string command_str = m[7];
-        if( trigger == -1 || action == -1 )
+        if( trigger == -1 || action == -1 ){
+            std::cout << "No such key or action" << std::endl;
             return false;
+        }
         binding.trigger = trigger;
         binding.action = action;
         binding.modifiers = mods;
@@ -279,6 +322,7 @@ Nova::KeyBinder::Bind( Nova::Binding binding )
     if( FindBinding( binding ) )
         throw std::runtime_error( "Cannot perform binding. Binding trigger already bound to command." );
     else{
+        std::cout << "Binding " << binding.trigger << " " << binding.action << " " << binding.modifiers << "  to Command: " << binding.command << std::endl;
         _boundActions.insert( std::make_pair( binding.trigger, std::vector< Binding >() ) );
         _boundActions.at( binding.trigger ).push_back( binding );
     }

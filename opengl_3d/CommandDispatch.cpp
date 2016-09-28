@@ -18,9 +18,12 @@ Nova::CommandDispatch::~CommandDispatch()
 void
 Nova::CommandDispatch::Input( const Nova::IOEvent& event )
 {
-    
+    std::cout << "Console Input" << std::endl;
+    std::cout << event.key_data->key << std::endl;
+
     if( _commandstarted ){
         if( event.key_data->key == IOEvent::KEY_GRAVE_ACCENT ){
+            _app.GetIOService().PriorityClear( IOService::KEY_DOWN );
             _commandstarted = false;
             _buffer.str("");
             return;
@@ -51,7 +54,8 @@ Nova::CommandDispatch::Input( const Nova::IOEvent& event )
             _buffer.str("");
             _buffer.seekp (0, _buffer.beg);
             _commandstarted = false;
-            
+            _app.GetIOService().PriorityClear( IOService::KEY_DOWN );
+
             //std::cout << "Command Entered: " << command << std::endl;
             //std::cout << "\tArgs: ";
             //for( auto arg : args )
@@ -69,10 +73,16 @@ Nova::CommandDispatch::Input( const Nova::IOEvent& event )
     }
     else{
         if( event.key_data->key == IOEvent::KEY_GRAVE_ACCENT ){
-            _commandstarted = true;
-            _buffer.clear();
-            _buffer.str("");
-            _buffer.seekp (0, _buffer.beg);
+            try{
+                _app.GetIOService().PriorityOn( IOService::KEY_DOWN,  [&](IOEvent& event){ this->Input( event ); });
+                _commandstarted = true;
+                _buffer.clear();
+                _buffer.str("");
+                _buffer.seekp (0, _buffer.beg);
+            }
+            catch( std::exception& e ){
+                _commandstarted = false;                
+            }
         }
     }
 }

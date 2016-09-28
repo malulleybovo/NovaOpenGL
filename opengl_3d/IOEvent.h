@@ -44,6 +44,7 @@ namespace Nova{
                        KEY_RIGHT_SUPER = 347,KEY_MENU = 348,KEY_LAST = 348 };
 
         static int TranslateCode( std::string code );
+        static std::string TranslateCode( int code );
         static int TranslateAction( std::string code );
         static int TranslateModifier( std::string code );
 
