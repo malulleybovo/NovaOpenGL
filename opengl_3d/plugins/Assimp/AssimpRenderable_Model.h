@@ -12,6 +12,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Nova{
+    class ApplicationFactory;
+
 class AssimpRenderable_Model
 {
     // model data
@@ -21,7 +23,7 @@ class AssimpRenderable_Model
     glm::vec4 _boundingSphere;
 
   public:
-    AssimpRenderable_Model();
+    AssimpRenderable_Model(ApplicationFactory& app);
     ~AssimpRenderable_Model() {}
 
 //##################################################################### 
@@ -34,6 +36,7 @@ class AssimpRenderable_Model
     glm::vec4 BoundingSphere();
 
  private:
+    ApplicationFactory& _app;
     void Build_Bounding_Sphere();
 //##################################################################### 
 };

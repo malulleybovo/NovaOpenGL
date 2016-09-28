@@ -19,6 +19,7 @@ Nova::ApplicationFactory::ApplicationFactory( const Nova::Config& config ) : _co
     _textrenderingservice = std::unique_ptr<TextRenderingService>( new TextRenderingService(*this) );
     _commanddispatch = std::unique_ptr<CommandDispatch>( new CommandDispatch(*this) );
     _keybinder = std::unique_ptr<KeyBinder>( new KeyBinder(*this) );
+    _texturemanager = std::unique_ptr<TextureManager>( new TextureManager(*this) );
 
     GetIOService().On( IOService::TIME, [&](IOEvent& event){_keybinder->Dispatch( event ); });
     GetIOService().On( IOService::REDRAW, [&](IOEvent& event){_keybinder->Dispatch( event ); });
@@ -88,6 +89,10 @@ Nova::ApplicationFactory::GetCommandDispatch()
 Nova::KeyBinder&
 Nova::ApplicationFactory::GetKeyBinder()
 { return *(_keybinder.get()); }
+
+Nova::TextureManager&
+Nova::ApplicationFactory::GetTextureManager()
+{ return *(_texturemanager.get()); }
 
 void
 Nova::ApplicationFactory::RunSanityChecks() const {

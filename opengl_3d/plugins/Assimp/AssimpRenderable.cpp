@@ -19,7 +19,7 @@ namespace Nova {
     public:
         AssimpRenderable( ApplicationFactory& app ) : Renderable( app ), selected(false)
         {
-            _model = std::unique_ptr<AssimpRenderable_Model>( new AssimpRenderable_Model() );
+            _model = std::unique_ptr<AssimpRenderable_Model>( new AssimpRenderable_Model(app) );
         }
 
         virtual ~AssimpRenderable(){

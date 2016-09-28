@@ -2,6 +2,7 @@
 // Copyright (c) 2016, Mridul Aanjaneya.
 //#####################################################################
 #include "AssimpRenderable_Model.h"
+#include "../../ApplicationFactory.h"
 //#include <nova/Rendering/OpenGL/Utilities/OpenGL_Utilities.h>
 #include <assimp/postprocess.h>
 #include <iostream>
@@ -39,7 +40,7 @@ GLint Texture_From_File(const char* path,const std::string& directory)
 // Constructor
 //#####################################################################
 AssimpRenderable_Model::
-AssimpRenderable_Model()
+AssimpRenderable_Model( ApplicationFactory& app) : _app(app)
 {
 }
 //#####################################################################
@@ -214,7 +215,7 @@ Load_Material_Textures(aiMaterial *material,aiTextureType type,const std::string
         if(!skip)
         {
             Texture texture;
-            texture.id=Texture_From_File(str.C_Str(),directory);
+            texture.id=_app.GetTextureManager().GetOpenGLTexture( (std::string(directory)+'/')+str.C_Str() );
             texture.type=type_name;
             texture.path=str;
             textures.push_back(texture);

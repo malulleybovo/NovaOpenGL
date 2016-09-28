@@ -12,6 +12,7 @@
 #include "IOService.h"
 #include "TextRenderingService.h"
 #include "CommandDispatch.h"
+#include "TextureManager.h"
 
 namespace Nova{
 
@@ -33,7 +34,8 @@ namespace Nova{
             TextRenderingService& GetTextRenderingService();
             CommandDispatch& GetCommandDispatch();
             KeyBinder& GetKeyBinder();
-	    
+            TextureManager& GetTextureManager();
+
         private:        
             void RunSanityChecks() const;
 
@@ -47,6 +49,7 @@ namespace Nova{
             std::unique_ptr<TextRenderingService> _textrenderingservice;
             std::unique_ptr<CommandDispatch> _commanddispatch;
             std::unique_ptr<KeyBinder> _keybinder;
+            std::unique_ptr<TextureManager> _texturemanager;
     };
 }
 
