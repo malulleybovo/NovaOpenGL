@@ -13,6 +13,8 @@ namespace Nova {
     
         std::string scenepath;
         std::vector<std::string> pluginpaths;
+        std::vector<std::string> bindings;
+        
     };
 }
 

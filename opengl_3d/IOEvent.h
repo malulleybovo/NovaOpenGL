@@ -15,8 +15,8 @@ namespace Nova{
         
         enum EVENT_MOD { mSHIFT = 1, mCONTROL = 2, mALT = 4, mSUPER = 8};
 
-        enum MOUSE_ACTION { M_UP = 1, M_DOWN = 2 };
-        enum KEY_ACTION { K_UP = 3, K_DOWN = 4, K_HOLD = 5 };
+        enum MOUSE_ACTION { M_MOTION=0, M_UP = 1, M_DOWN = 2, M_SCROLL=3 };
+        enum KEY_ACTION { K_UP = 4, K_DOWN = 5, K_HOLD = 6 };
 
         enum MOUSE_BUTTON { M_LEFT = 1, M_RIGHT = 2, M_MIDDLE = 4, M_OTHER = 8, M_MOVE=16 };
         enum KEY_CODE {KEY_UNKNOWN = -1,KEY_SPACE = 32,KEY_APOSTROPHE = 39,KEY_COMMA = 44,KEY_MINUS = 45,
@@ -43,7 +43,9 @@ namespace Nova{
                        KEY_LEFT_SUPER = 343,KEY_RIGHT_SHIFT = 344,KEY_RIGHT_CONTROL = 345,KEY_RIGHT_ALT = 346,
                        KEY_RIGHT_SUPER = 347,KEY_MENU = 348,KEY_LAST = 348 };
 
-
+        static int TranslateCode( std::string code );
+        static int TranslateAction( std::string code );
+        static int TranslateModifier( std::string code );
 
         EVENT_TYPE type;
         unsigned int data_flags;
@@ -61,17 +63,19 @@ namespace Nova{
             KEY_CODE key;
             int scancode;
             KEY_ACTION action;
-                int mods;
+            int mods;
         };
         
         struct _mousemotion_data { 
             double x;
             double y;
+            int mods;
         };
 
         struct _scroll_data { 
             double x;
             double y;
+            int mods;
         };
 
         struct _draw_data {
@@ -80,7 +84,7 @@ namespace Nova{
         };
         
         struct _drop_data {
-                int num_files;
+            int num_files;
             const char** filenames;
         };
 

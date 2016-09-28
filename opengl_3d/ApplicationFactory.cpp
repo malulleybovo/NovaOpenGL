@@ -18,6 +18,14 @@ Nova::ApplicationFactory::ApplicationFactory( const Nova::Config& config ) : _co
     _renderableman = std::unique_ptr<RenderableManager>( new RenderableManager(*this) );
     _textrenderingservice = std::unique_ptr<TextRenderingService>( new TextRenderingService(*this) );
     _commanddispatch = std::unique_ptr<CommandDispatch>( new CommandDispatch(*this) );
+
+    KeyBinder b( *this );
+
+    for( auto binding : _config.bindings ){
+        std::cout << binding << std::endl;
+        b.Translate( binding );
+    }
+
 }
 
 Nova::IOService&

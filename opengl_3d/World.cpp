@@ -217,6 +217,21 @@ void World::Scroll_Callback( GLFWwindow* window,double xoffset,double yoffset)
     event.scroll_data->x = xoffset;
     event.scroll_data->y = yoffset;
     event.currentTime = glfwGetTime();
+
+
+    int shift_state = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ? 1 : 0) || 
+                      (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS ? 1 : 0);
+    int ctrl_state  = (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ? 1 : 0) || 
+                      (glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS ? 1 : 0);
+    int alt_state   = (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS ? 1 : 0) || 
+                      (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS ? 1 : 0);
+    int super_state = (glfwGetKey(window, GLFW_KEY_LEFT_SUPER) == GLFW_PRESS ? 1 : 0) || 
+                      (glfwGetKey(window, GLFW_KEY_RIGHT_SUPER) == GLFW_PRESS ? 1 : 0);
+    event.scroll_data->mods = (shift_state * IOEvent::mSHIFT) | 
+                                   (ctrl_state * IOEvent::mCONTROL) | 
+                                   (alt_state * IOEvent::mALT) | 
+                                   (super_state * IOEvent::mSUPER);
+
     world->_app.GetIOService().Trigger( event );
     
 }
@@ -320,8 +335,21 @@ void World::Mouse_Position_Callback(GLFWwindow* window,double x,double y)
     World *world=static_cast<World*>(glfwGetWindowUserPointer(window));
     IOEvent event(IOEvent::MOUSEMOVE);
 
+    int shift_state = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ? 1 : 0) || 
+                      (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS ? 1 : 0);
+    int ctrl_state  = (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ? 1 : 0) || 
+                      (glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS ? 1 : 0);
+    int alt_state   = (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS ? 1 : 0) || 
+                      (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS ? 1 : 0);
+    int super_state = (glfwGetKey(window, GLFW_KEY_LEFT_SUPER) == GLFW_PRESS ? 1 : 0) || 
+                      (glfwGetKey(window, GLFW_KEY_RIGHT_SUPER) == GLFW_PRESS ? 1 : 0);
+
     event.currentTime = glfwGetTime();
     event.mousemotion_data->x = x;
     event.mousemotion_data->y = y;
+    event.mousemotion_data->mods = (shift_state * IOEvent::mSHIFT) | 
+                                   (ctrl_state * IOEvent::mCONTROL) | 
+                                   (alt_state * IOEvent::mALT) | 
+                                   (super_state * IOEvent::mSUPER);
     world->_app.GetIOService().Trigger( event );
 }

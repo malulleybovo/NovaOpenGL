@@ -8,6 +8,7 @@ add_library( opengl_3d_kernel
   RenderableManager.cpp
   World.cpp
   Shader.cpp
+  IOEvent.cpp
   IOService.cpp
   TextRenderingService.cpp
   CommandDispatch.cpp
@@ -19,7 +20,15 @@ add_library( opengl_3d_kernel
 pkg_check_modules (glfw3 REQUIRED glfw3)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(Boost 1.54 REQUIRED COMPONENTS filesystem program_options)
+
+set( USE_C11_REGEX OFF CACHE BOOL "Use regular expressions from the c++11 standard library, otherwise use Boost." )
+
+if( USE_C11_REGEX )
+  target_compile_definitions( opengl_3d_kernel PRIVATE USE_C11_REGEX )
+  find_package(Boost 1.54 REQUIRED COMPONENTS filesystem program_options)
+else()
+  find_package(Boost 1.54 REQUIRED COMPONENTS filesystem program_options regex)
+endif()
 
 if(WIN32)
   target_compile_definitions(opengl_3d_kernel PUBLIC OPENGL_3D_WIN32=1)

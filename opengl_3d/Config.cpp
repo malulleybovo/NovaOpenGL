@@ -15,7 +15,6 @@ void
 Nova::Config::Parse(const std::vector<std::string>& paths, int argc, char** argv){
     
     std::string config_file;
-
     // Declare a group of options that will be 
     // allowed only on command line
     po::options_description generic("Generic options");
@@ -32,6 +31,7 @@ Nova::Config::Parse(const std::vector<std::string>& paths, int argc, char** argv
     // config file
     po::options_description config("Configuration");
     config.add_options()
+        ("Bind", po::value<std::vector<std::string> >(&bindings)->default_value(std::vector<std::string>(), ""), "Bindings to add to the Keybinding map." )
         ;
         
     // Hidden options, will be allowed both on command line and

@@ -71,6 +71,7 @@ namespace Nova{
         void Dispatch( const IOEvent& event ) const;
 
     private:
+        bool FindBinding( Binding& binding_template ) const;
         ApplicationFactory& _app;
         std::map<int, std::vector< Binding > > _boundActions;        
     };
