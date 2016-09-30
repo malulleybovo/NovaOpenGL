@@ -71,4 +71,4 @@ target_link_libraries( opengl_3d_new
 add_subdirectory( plugins/Assimp )
 add_subdirectory( plugins/FreeTypeTextRenderer )
 add_subdirectory( plugins/SOILTextureProvider )
-#add_subdirectory( plugins/FreeTypeTextRenderer )
+add_subdirectory( plugins/OIIOTextureProvider )

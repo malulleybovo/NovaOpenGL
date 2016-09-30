@@ -42,7 +42,7 @@ namespace Nova {
             unsigned char* pixels = SOIL_load_image(name.c_str(),&width,&height,0,SOIL_LOAD_RGB);
             w = width;
             h = height;
-            d = 0;
+            d = 1;
             c = 3;            
         };
 

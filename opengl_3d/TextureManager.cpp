@@ -26,8 +26,8 @@ Nova::TextureManager::GetOpenGLTexture( std::string name ){
             if( _textureProvider->TextureLoadable( name ) ){                
                 unsigned int width, height, depth, channels;
                 _textureProvider->TextureDimensions( name, width, height, depth, channels );
-                if( depth != 0 ){
-                    std::cout << name << ": Texture malformed. Depth is not zero." << std::endl;
+                if( depth != 1 ){
+                    std::cout << name << ": Texture malformed. Depth is not one." << std::endl;
                     return GetMissingTexture();
                 }
                 if( channels < 1 || channels > 4 ){
@@ -85,7 +85,6 @@ unsigned int
 Nova::TextureManager::GetMissingTexture(){
     if(! _missingTexture ) {
     // Need to generate a new missing texture buffer
-        std::cout << "Generating missing texure." << std::endl;
 
         GLuint texture_id;
         glGenTextures(1,&texture_id);
@@ -111,7 +110,6 @@ Nova::TextureManager::GetMissingTexture(){
         glBindTexture(GL_TEXTURE_2D,0);              
         delete [] pixels;
 
-        std::cout << "Missing texture id is: " << texture_id << std::endl;
         _missingTexture = texture_id;
     }
     return _missingTexture;

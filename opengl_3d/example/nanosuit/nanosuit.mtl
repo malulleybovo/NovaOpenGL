@@ -9,7 +9,7 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Kd arm_dif.png
-map_Bump arm_showroom_ddn.png
+map_Bump arm_showroom_ddn_foo.png
 map_Ks arm_showroom_spec.png
 
 
