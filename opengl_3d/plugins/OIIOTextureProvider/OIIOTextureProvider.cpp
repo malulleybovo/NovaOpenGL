@@ -16,7 +16,7 @@ namespace Nova {
     public:
         OIIOTextureProvider() : TextureProvider(), cache(NULL) {
             cache = OIIO::ImageCache::create (false);
-	    cache->attribute (OIIO::ustring("unassociatedalpha"), 1);
+            cache->attribute ("unassociatedalpha", 1);
         };
 
         virtual ~OIIOTextureProvider() {
@@ -51,9 +51,10 @@ namespace Nova {
             int nc = buf.nchannels();            
             // Iterate over all pixels of the image, summing channels separately
             for (OIIO::ImageBuf::ConstIterator<unsigned char,unsigned char> it (buf); ! it.done(); ++it){
-                for (int c = 0; c < nc; ++c)
-                    pixels[ (it.x()*spec.width+it.y())*nc + c ] = it[c];
-                //std::cout << "pixel: " << it.x() << " " << it.y() << ":  " << it[0] << " " << it[1] << " " << it[2] << " " << it[3] << std::endl;
+                for (int c = 0; c < nc; ++c){
+                    pixels[ (it.y()*spec.height+it.x())*nc + c ] = it[c];
+                    //std::cout << "pixel: " << it.x() << " " << it.y() << " " << c << ":  " << (it.y()*spec.height+it.x())*nc + c  << std::endl;
+                }
             }
             return;
         };
