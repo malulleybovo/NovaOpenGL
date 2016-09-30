@@ -16,6 +16,7 @@ namespace Nova {
     public:
         OIIOTextureProvider() : TextureProvider(), cache(NULL) {
             cache = OIIO::ImageCache::create (false);
+	    cache->attribute (OIIO::ustring("unassociatedalpha"), 1);
         };
 
         virtual ~OIIOTextureProvider() {
