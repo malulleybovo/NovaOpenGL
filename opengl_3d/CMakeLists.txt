@@ -21,6 +21,7 @@ add_library( opengl_3d_kernel
 pkg_check_modules (glfw3 REQUIRED glfw3)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(GLM REQUIRED)
 
 set( USE_C11_REGEX OFF CACHE BOOL "Use regular expressions from the c++11 standard library, otherwise use Boost." )
 
