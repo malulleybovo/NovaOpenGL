@@ -40,7 +40,6 @@ namespace Nova {
             h = spec.height;
             d = spec.depth;
             c = spec.nchannels;
-            std::cout << w << " " << h << " " << d << " " << c << std::endl;
             return;
         };
 
@@ -52,8 +51,8 @@ namespace Nova {
             // Iterate over all pixels of the image, summing channels separately
             for (OIIO::ImageBuf::ConstIterator<unsigned char,unsigned char> it (buf); ! it.done(); ++it){
                 for (int c = 0; c < nc; ++c){
-                    pixels[ (it.y()*spec.height+it.x())*nc + c ] = it[c];
-                    //std::cout << "pixel: " << it.x() << " " << it.y() << " " << c << ":  " << (it.y()*spec.height+it.x())*nc + c  << std::endl;
+                    unsigned int location = ((spec.height-it.y())*spec.width+it.x())*nc + c;
+                    pixels[ location ] = it[c];
                 }
             }
             return;
