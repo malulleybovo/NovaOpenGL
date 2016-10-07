@@ -46,12 +46,15 @@ namespace Nova {
         virtual void TextureData( std::string name, unsigned char* pixels) {
             OIIO::ImageBuf buf( name, 0, 0, cache );
             const OIIO::ImageSpec& spec = buf.spec();
-            // Initialize a vector to contain the running total
             int nc = buf.nchannels();            
-            // Iterate over all pixels of the image, summing channels separately
+            // Iterate over all pixels of the image
+
             for (OIIO::ImageBuf::ConstIterator<unsigned char,unsigned char> it (buf); ! it.done(); ++it){
                 for (int c = 0; c < nc; ++c){
-                    unsigned int location = ((spec.height-it.y())*spec.width+it.x())*nc + c;
+                    unsigned int location = ((((spec.height-it.y()-1) // Flipped y-axis  
+                                               *spec.width+it.x())  // Times width, add width offset
+                                              *spec.depth+it.z()) // Times depth, add depth offset
+                                             *nc + c);              // Times num-channels, add channel offset
                     pixels[ location ] = it[c];
                 }
             }
