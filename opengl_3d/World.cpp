@@ -12,6 +12,7 @@
 #include "TrackballCameraControl.h"
 #include "OrbitCameraControl.h"
 #include "IOEvent.h"
+#include "ViewportManager.h"
 
 using namespace Nova;
 //#####################################################################
@@ -19,26 +20,26 @@ using namespace Nova;
 //#####################################################################
 World::
 World(ApplicationFactory& app)
-    :_app(app),window(nullptr),control(nullptr)
+    :_app(app),window(nullptr)//,control(nullptr)
 {
-    render_camera.Set_Mode(FREE);
-    render_camera.Set_Position(glm::vec3(0,0,-10));
-    render_camera.Set_Look_At(glm::vec3(0,0,0));
-    render_camera.Set_Clipping(.1,1000);
-    render_camera.Set_FOV(45);
-    control = new OrbitCameraControl( render_camera );
-    _app.GetIOService().On( IOService::MOUSE_DOWN, [&](IOEvent& event){control->MouseDown(event);} );
-    _app.GetIOService().On( IOService::MOUSE_UP, [&](IOEvent& event){control->MouseUp(event);} );
-    _app.GetIOService().On( IOService::MOUSE_MOVE, [&](IOEvent& event){control->MouseMove(event);} );
-    _app.GetIOService().On( IOService::SCROLL, [&](IOEvent& event){control->Scroll(event);} );
-    _app.GetIOService().On( IOService::KEY_DOWN, [&](IOEvent& event){control->KeyDown(event);} );
-    _app.GetIOService().On( IOService::KEY_UP, [&](IOEvent& event){control->KeyUp(event);} );
-    _app.GetIOService().On( IOService::KEY_HOLD, [&](IOEvent& event){control->KeyHold(event);} );
-    _app.GetIOService().On( IOService::REDRAW, [&](IOEvent& event){control->Redraw(event);} );
-    _app.GetIOService().On( IOService::TIME, [&](IOEvent& event){control->Update(event);} );
-    _app.GetIOService().On( "RESET-CAMERA", [&](IOEvent& event){control->Reset();} );
+//render_camera.Set_Mode(FREE);
+//render_camera.Set_Position(glm::vec3(0,0,-10));
+//render_camera.Set_Look_At(glm::vec3(0,0,0));
+//render_camera.Set_Clipping(.1,1000);
+//render_camera.Set_FOV(45);
+//control = new OrbitCameraControl( render_camera );
 
-
+     viewport = std::unique_ptr<ViewportManager>( new ViewportManager(app) );
+     _app.GetIOService().On( IOService::MOUSE_DOWN, [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( IOService::MOUSE_UP, [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( IOService::MOUSE_MOVE, [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( IOService::SCROLL, [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( IOService::KEY_DOWN, [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( IOService::KEY_UP, [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( IOService::KEY_HOLD, [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( "WINDOW-RESIZE", [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( "RENDER-FRAME", [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( "RESET-CAMERA", [&](IOEvent& event){viewport->HandleEvent(event);} );
 }
 //#####################################################################
 // Destructor
@@ -47,35 +48,33 @@ World::
 ~World()
 {
 glfwTerminate();
-if( control ){
-delete control;
-control = nullptr;
-}
+//if( control ){
+//delete control;
+//control = nullptr;
+//}
 }
     //#####################################################################
     // Camera Matrix Operators
     //#####################################################################
     glm::mat4 
     World::Get_ViewMatrix() const {
-return render_camera.Get_ViewMatrix();
+ return viewport->GetViewMatrix();
 }
-        
+
         glm::mat4
         World::Get_ModelMatrix() const {
-return render_camera.Get_ModelMatrix();
+return viewport->GetModelMatrix();
 
 }
             
             glm::mat4
             World::Get_ProjectionMatrix() const {
-return render_camera.Get_ProjectionMatrix();
+return viewport->GetProjectionMatrix();
 
 }
 
 glm::vec4 World::Get_Viewport() const {
-    int viewport[4]; 
-    glGetIntegerv( GL_VIEWPORT, viewport ); 
-    return glm::vec4( viewport[0], viewport[1], viewport[2], viewport[3] );
+return viewport->GetViewport();
 }
 
 //#####################################################################
@@ -153,14 +152,17 @@ Initialize_Camera_Controls()
 
   // Fire a redraw event to initialize the control to the window size,
   // just in case it needs it. 
-  IOEvent event(IOEvent::DRAW);
-  event.draw_data->width = width;
-  event.draw_data->height = height;
-  event.currentTime = glfwGetTime();
-  control->Redraw( event );
+  //IOEvent event(IOEvent::DRAW);
+  //event.draw_data->width = width;
+  //event.draw_data->height = height;
+  //event.currentTime = glfwGetTime();
+  //control->Redraw( event );
 
   // Call reset to clear any state
-  control->Reset();
+  //control->Reset();
+
+  viewport->SetWindowGeometry( width, height );
+  viewport->ResetAll();
 }
 //#####################################################################
 // Handle_Input
@@ -187,19 +189,26 @@ Main_Loop()
         glClearColor(18.0f/255.0f,26.0f/255.0f,32.0f/255.0f,1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        render_camera.aspect=window_aspect;
-        render_camera.window_width=window_size.x;
-        render_camera.window_height=window_size.y;
+        //render_camera.aspect=window_aspect;
+        //render_camera.window_width=window_size.x;
+        //render_camera.window_height=window_size.y;
         
         IOEvent event(IOEvent::TIME);
         event.currentTime = glfwGetTime();
-        glm::mat4 projection,view,model;
-        render_camera.Get_Matrices(projection,view,model);
+        _app.GetIOService().Trigger( event );
+
+        //glm::mat4 projection,view,model;
+        //render_camera.Get_Matrices(projection,view,model);
         glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
-        _app.GetIOService().Trigger( event );
-        render_camera.Update();
-        _app.GetScene().Draw();
+//render_camera.Update();
+        
+        // For every viewport, update its camera and draw the scene.
+        for( int v = 0; v < viewport->NumViewports(); v++ ){
+            viewport->SetViewport(v);
+            viewport->Update();
+            _app.GetScene().Draw();
+        }
         
         glfwSwapBuffers(window);
     }

@@ -16,6 +16,7 @@ add_library( opengl_3d_kernel
   OrbitCameraControl.cpp
   TrackballCameraControl.cpp
   TextureManager.cpp
+  ViewportManager.cpp
   )
 
 pkg_check_modules (glfw3 REQUIRED glfw3)
