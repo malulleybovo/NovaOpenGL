@@ -35,7 +35,7 @@ namespace Nova {
         // State Methods
         virtual void Reset();
         virtual void Update(const IOEvent& event);
-
+        virtual bool HasFocus();
 
         // API
         
@@ -150,6 +150,7 @@ namespace Nova {
 
     }; 
 
+    
 };
 
 #endif

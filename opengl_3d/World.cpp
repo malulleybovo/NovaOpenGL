@@ -8,9 +8,7 @@
 
 #include "ApplicationFactory.h"
 
-#include "StaticCameraControl.h"
-#include "TrackballCameraControl.h"
-#include "OrbitCameraControl.h"
+
 #include "IOEvent.h"
 #include "ViewportManager.h"
 
@@ -40,6 +38,11 @@ World(ApplicationFactory& app)
      _app.GetIOService().On( "WINDOW-RESIZE", [&](IOEvent& event){viewport->HandleEvent(event);} );
      _app.GetIOService().On( "RENDER-FRAME", [&](IOEvent& event){viewport->HandleEvent(event);} );
      _app.GetIOService().On( "RESET-CAMERA", [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( "SWITCH-CAMERA", [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( "VIEWPORT-MODE", [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( "CYCLE-AXIS-MODE", [&](IOEvent& event){viewport->HandleEvent(event);} );
+     _app.GetIOService().On( "TOGGLE-ORTHO-CAMERA", [&](IOEvent& event){viewport->HandleEvent(event);} );
+
 }
 //#####################################################################
 // Destructor
@@ -160,7 +163,7 @@ Initialize_Camera_Controls()
 
   // Call reset to clear any state
   //control->Reset();
-
+  viewport->InitializeChrome();
   viewport->SetWindowGeometry( width, height );
   viewport->ResetAll();
 }
@@ -208,7 +211,9 @@ Main_Loop()
             viewport->SetViewport(v);
             viewport->Update();
             _app.GetScene().Draw();
+            viewport->DrawAxis();
         }
+        viewport->DrawFrame();
         
         glfwSwapBuffers(window);
     }

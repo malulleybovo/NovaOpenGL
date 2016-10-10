@@ -10,7 +10,7 @@
 Nova::OrbitCameraControl::OrbitCameraControl( Camera& camera ) : BASE( camera ) 
 {
     enabled = true;
-    target = glm::vec3(0,0,0);
+    target = glm::vec3(0,0,-1);
     minDistance = 0;
     maxDistance = 1e8;
     minZoom = 0;
@@ -30,8 +30,9 @@ Nova::OrbitCameraControl::OrbitCameraControl( Camera& camera ) : BASE( camera )
     autoRotate = false;
     autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
     enableKeys = true;
-    keys = {IOEvent::KEY_W, IOEvent::KEY_S, IOEvent::KEY_A, IOEvent::KEY_D };    
-    position0 = GetCamera().Get_Position();
+    keys = {IOEvent::KEY_W, IOEvent::KEY_S, IOEvent::KEY_A, IOEvent::KEY_D };
+    zoom = 1.0;
+    position0 = glm::vec3(0,0,0);    
     target0 = target;
     zoom0 = zoom;
 
@@ -41,6 +42,15 @@ Nova::OrbitCameraControl::OrbitCameraControl( Camera& camera ) : BASE( camera )
     zoomChanged = false;   
 }
 
+
+bool
+Nova::OrbitCameraControl::HasFocus(){
+    if( state != NONE )
+        return true;
+    else
+        return false;
+
+}
 
 void Nova::OrbitCameraControl::MouseDown(const Nova::IOEvent& event) {
 
@@ -130,8 +140,8 @@ void Nova::OrbitCameraControl::KeyHold(const Nova::IOEvent& event) {
 };
 
 void Nova::OrbitCameraControl::Redraw(const Nova::IOEvent& event) {
-    screen.left = 0;
-    screen.top = 0;
+    screen.left = event.draw_data->x;
+    screen.top = event.draw_data->y;
     screen.width = event.draw_data->width;
     screen.height = event.draw_data->height;
 };
@@ -153,6 +163,7 @@ void Nova::OrbitCameraControl::Reset()
     zoom = zoom0;
 
     GetCamera().Set_Position(position0);
+    GetCamera().Set_Look_At( target0 );
     state = NONE;
 };
 
@@ -252,7 +263,8 @@ void Nova::OrbitCameraControl::Update(const Nova::IOEvent& event) {
     if ( zoomChanged ||
          glm::length2( lastPosition - GetCamera().Get_Position() ) > EPS ||
          8 * ( 1 - glm::dot(lastQuaternion, GetCamera().Get_Rotation() )) > EPS ) {      
-        
+
+        GetCamera().Set_Scale( zoom );
         lastPosition = GetCamera().Get_Position();
         lastQuaternion = GetCamera().Get_Rotation();
         zoomChanged = false;                  
@@ -308,27 +320,27 @@ void Nova::OrbitCameraControl::pan( float deltaX, float deltaY ){
     } else if ( GetCamera().Get_Mode() == ORTHO  ) {
         std::array<float,6> ortho_coords = GetCamera().Get_Ortho_Box();
         // orthographic
-        panLeft( deltaX * (ortho_coords[1]-ortho_coords[0])/zoom/screen.width, GetCamera().Get_ModelMatrix());
-        panUp( deltaY * ( ortho_coords[3]-ortho_coords[2] )/zoom/screen.width, GetCamera().Get_ModelMatrix());
+        panLeft( deltaX * (ortho_coords[1]-ortho_coords[0])/screen.width, GetCamera().Get_ModelMatrix());
+        panUp( deltaY * ( ortho_coords[3]-ortho_coords[2] )/screen.width, GetCamera().Get_ModelMatrix());
     }
 }
 
 void Nova::OrbitCameraControl::dollyIn( float dollyScale ) {
-    if ( GetCamera().Get_Mode() == FREE ){
+    //if ( GetCamera().Get_Mode() == FREE ){
         scale /= dollyScale;        
-    } else if ( GetCamera().Get_Mode() == ORTHO ) {
+        //} else if ( GetCamera().Get_Mode() == ORTHO ) {
         zoom = glm::max( minZoom, glm::min( maxZoom, zoom * dollyScale ) );
         // scope.object.updateProjectionMatrix(); ???
         zoomChanged = true;        
-    }    
+        //}    
 }
 
 void Nova::OrbitCameraControl::dollyOut( float dollyScale ) {
-    if ( GetCamera().Get_Mode() == FREE ){
+    //if ( GetCamera().Get_Mode() == FREE ){
         scale *= dollyScale;        
-    } else if ( GetCamera().Get_Mode() == ORTHO ) {
+        //} else if ( GetCamera().Get_Mode() == ORTHO ) {
         zoom = glm::max( minZoom, glm::min( maxZoom, zoom / dollyScale ) );
         // scope.object.updateProjectionMatrix(); ???
         zoomChanged = true;        
-    }    
+        //}    
 }
