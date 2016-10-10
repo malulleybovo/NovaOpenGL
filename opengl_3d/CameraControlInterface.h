@@ -27,6 +27,7 @@ namespace Nova {
         virtual void Scroll(const IOEvent& event) {} ;
 
         // State Methods
+        virtual bool HasFocus() {return false;} ;
         virtual void Reset() = 0;
         virtual void Update( const IOEvent& event ) {};
         Camera& GetCamera() { return _camera; };

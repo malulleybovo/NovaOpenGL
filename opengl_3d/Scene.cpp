@@ -171,10 +171,10 @@ Nova::Scene::Selection( IOEvent& event )
     // Build Hit Test line
 
     glm::vec3 mouse_position;
-    glm::mat4 view = _app.GetWorld().Get_ViewMatrix();
-    glm::mat4 model = _app.GetWorld().Get_ModelMatrix();
-    glm::mat4 projection = _app.GetWorld().Get_ProjectionMatrix();
-    glm::vec4 viewport = _app.GetWorld().Get_Viewport();
+    glm::mat4 view = _app.GetWorld().Get_ViewMatrix(World::INTERACTION);
+    glm::mat4 model = _app.GetWorld().Get_ModelMatrix(World::INTERACTION);
+    glm::mat4 projection = _app.GetWorld().Get_ProjectionMatrix(World::INTERACTION);
+    glm::vec4 viewport = _app.GetWorld().Get_Viewport(World::INTERACTION);
 
     mouse_position.x = event.mousebutton_data->x;
     mouse_position.y = (viewport[3] - event.mousebutton_data->y); // Fix the Y direction

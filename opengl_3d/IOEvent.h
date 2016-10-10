@@ -80,6 +80,8 @@ namespace Nova{
         };
 
         struct _draw_data {
+            int x;
+            int y;
             int width;
             int height;
         };

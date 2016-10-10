@@ -39,7 +39,14 @@ Update()
     camera_direction=glm::normalize(camera_look_at-camera_position);
     glViewport(viewport_x,viewport_y,window_width,window_height);
 
-    if(camera_mode==ORTHO) projection=glm::ortho(-1.5f*float(aspect),1.5f*float(aspect),-1.5f,1.5f,-10.0f,10.f);
+    if(camera_mode==ORTHO){      
+        
+        projection=glm::ortho(-1.5f*float(aspect)*camera_scale,
+                              1.5f*float(aspect)*camera_scale,
+                              -1.5f*camera_scale,
+                              1.5f*camera_scale,
+                              (float)near_clip,(float)far_clip);
+    }
     else if(camera_mode==FREE)
     {
         projection=glm::perspective(glm::radians(field_of_view),aspect,near_clip,far_clip);

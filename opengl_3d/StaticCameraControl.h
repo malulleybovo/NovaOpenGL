@@ -88,12 +88,16 @@ namespace Nova {
         };
 
         // State Methods
-        virtual void Reset() {};
+        virtual void Reset() {
+            GetCamera().Set_Position(glm::vec3(0,0,0));
+            GetCamera().Set_Look_At( glm::vec3(0,0,-1) );
+        };
         virtual void Update(const IOEvent& event) {
             std::cout << "Update: " << event.currentTime << std::endl;
         }
 
     };
+
 
 }
 

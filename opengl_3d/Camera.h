@@ -56,9 +56,17 @@ class Camera
     {return projection;}
     inline glm::mat4 Get_Matrix() const
     {return MVP;}
+
+    inline float Get_Scale(){
+        return camera_scale;
+    };
+
+    inline void Set_Scale(float scale){
+        camera_scale = scale;
+    };
     
     inline std::array<float,6> Get_Ortho_Box() const
-    { return {-1.5f*float(aspect),1.5f*float(aspect),-1.5f,1.5f,-10.0f,10.f}; }
+    { return {-1.5f*float(aspect)*camera_scale,1.5f*float(aspect)*camera_scale,-1.5f*camera_scale,1.5f*camera_scale,(float)near_clip,(float)far_clip}; }
         
     inline void Set_Position(glm::vec3 pos)
     {camera_position=pos;}
