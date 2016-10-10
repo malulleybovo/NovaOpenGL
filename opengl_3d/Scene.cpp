@@ -65,10 +65,8 @@ Nova::Scene::Configure( std::string path ){
     config_path /= path;
     config_path /= "scene.conf";
 
-    std::vector<std::string> pluginList;
     po::options_description config("Configuration");
     config.add_options()
-      ("Plugin", po::value<std::vector<std::string> >(&pluginList), "a list of plugins to load")
         ;
     
     std::ifstream ifs(config_path.c_str());
@@ -80,7 +78,7 @@ Nova::Scene::Configure( std::string path ){
     store( results, vm );
     notify(vm);        
 
-    for( auto plugin : pluginList ){
+    for( auto plugin : _app.GetConfig().pluginList ){
       _app.GetPluginManager().LoadPlugin( plugin );
     }    
 }
