@@ -65,7 +65,11 @@ namespace Nova {
         glm::vec4 GetViewport() const;
         void DrawAxis();
 
-        
+        // These methods act upon the interacted/focused viewport
+        glm::mat4 GetInteractionViewMatrix() const;
+        glm::mat4 GetInteractionModelMatrix() const;
+        glm::mat4 GetInteractionProjectionMatrix() const;
+        glm::vec4 GetInteractionViewport() const;
 
     private:
         enum AxisMode { AXIS_DISABLE=0, AXIS_CENTER=1, AXIS_CORNER=2, AXIS_MAX_VALUE=3 };

@@ -37,11 +37,15 @@ namespace Nova{
         ~World();
         void Initialize_Camera_Controls();
         
-        glm::mat4 Get_ViewMatrix() const ;
-        glm::mat4 Get_ModelMatrix() const ;
-        glm::mat4 Get_ProjectionMatrix() const ; 
-        glm::vec4 Get_Viewport() const;
+        enum MATRIX_MODE { DRAW, INTERACTION };
+
+        glm::mat4 Get_ViewMatrix(MATRIX_MODE mode = DRAW) const ;
+        glm::mat4 Get_ModelMatrix(MATRIX_MODE mode = DRAW) const ;
+        glm::mat4 Get_ProjectionMatrix(MATRIX_MODE mode = DRAW) const ; 
+        glm::vec4 Get_Viewport(MATRIX_MODE mode = DRAW) const;
         float Get_DPI() const;
+
+        ViewportManager& GetViewportManager();
 
         static void Close_Callback(GLFWwindow* window);
         static void Scroll_Callback( GLFWwindow* window,double xoffset,double yoffset);              

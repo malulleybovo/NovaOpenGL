@@ -20,12 +20,6 @@ World::
 World(ApplicationFactory& app)
     :_app(app),window(nullptr)//,control(nullptr)
 {
-//render_camera.Set_Mode(FREE);
-//render_camera.Set_Position(glm::vec3(0,0,-10));
-//render_camera.Set_Look_At(glm::vec3(0,0,0));
-//render_camera.Set_Clipping(.1,1000);
-//render_camera.Set_FOV(45);
-//control = new OrbitCameraControl( render_camera );
 
      viewport = std::unique_ptr<ViewportManager>( new ViewportManager(app) );
      _app.GetIOService().On( IOService::MOUSE_DOWN, [&](IOEvent& event){viewport->HandleEvent(event);} );
@@ -60,24 +54,34 @@ glfwTerminate();
     // Camera Matrix Operators
     //#####################################################################
     glm::mat4 
-    World::Get_ViewMatrix() const {
- return viewport->GetViewMatrix();
+    World::Get_ViewMatrix(MATRIX_MODE mode) const {
+if( mode == DRAW )
+    return viewport->GetViewMatrix();
+ else
+    return viewport->GetInteractionViewMatrix();
 }
 
         glm::mat4
-        World::Get_ModelMatrix() const {
+        World::Get_ModelMatrix(MATRIX_MODE mode) const {
+if( mode == DRAW )
 return viewport->GetModelMatrix();
-
+ else
+    return viewport->GetInteractionModelMatrix();
 }
             
             glm::mat4
-            World::Get_ProjectionMatrix() const {
+            World::Get_ProjectionMatrix(MATRIX_MODE mode) const {
+if( mode == DRAW )
 return viewport->GetProjectionMatrix();
-
+ else
+    return viewport->GetInteractionProjectionMatrix();
 }
 
-glm::vec4 World::Get_Viewport() const {
+glm::vec4 World::Get_Viewport(MATRIX_MODE mode) const {
+if( mode == DRAW )
 return viewport->GetViewport();
+ else
+    return viewport->GetInteractionViewport();
 }
 
 //#####################################################################
@@ -88,6 +92,15 @@ float
 {
 return float(dpi);
 }
+
+//#####################################################################
+// Initialize
+//#####################################################################
+ViewportManager&
+    World::GetViewportManager(){
+return *( viewport.get() );
+}
+
 
 //#####################################################################
 // Initialize

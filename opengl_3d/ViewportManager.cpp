@@ -12,7 +12,6 @@
 
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtc/constants.hpp>
 
 Nova::ViewportManager::ViewportManager( ApplicationFactory &app ) :
@@ -256,7 +255,7 @@ void Nova::ViewportManager::DrawAxis(){
     
     view =  glm::rotate( mReflectionX * glm::mat4(rot_part), glm::pi<float>(), glm::vec3( 1.0, 0, 0) ) * mReflectionX;
     if( axis_mode == AXIS_CENTER ){
-        projection = glm::orthoRH(-1.0f * ((float)(viewport.width) / viewport.height),
+        projection = glm::ortho(-1.0f * ((float)(viewport.width) / viewport.height),
                                   1.0f * ((float)(viewport.width) / viewport.height), 
                                   1.0f ,
                                   -1.0f,
@@ -265,7 +264,7 @@ void Nova::ViewportManager::DrawAxis(){
         glViewport( viewport.x, viewport.y, viewport.width, viewport.height );
     }
     if( axis_mode == AXIS_CORNER ){
-        projection = glm::orthoRH(-1.0f,
+        projection = glm::ortho(-1.0f,
                                   1.0f, 
                                   1.0f ,
                                   -1.0f,
@@ -388,6 +387,55 @@ Nova::ViewportManager::GetViewport() const{
     // Retrieve the viewport parameters from the active viewport
     const Viewport& viewport = _viewports.at( _activeViewport );
     return glm::vec4( viewport.x, viewport.y, viewport.width, viewport.height );
+}
+
+
+glm::mat4
+Nova::ViewportManager::GetInteractionViewMatrix() const {
+    if( _focused ){
+        const Viewport& viewport = _viewports.at( _focusedViewport );
+        return viewport.camera->Get_ViewMatrix();
+    }
+    else{
+        const Viewport& viewport = _viewports.at( _recentlyInteractedViewport );
+        return viewport.camera->Get_ViewMatrix();
+    }       
+}
+
+glm::mat4
+Nova::ViewportManager::GetInteractionModelMatrix() const {
+    if( _focused ){
+        const Viewport& viewport = _viewports.at( _focusedViewport );
+        return viewport.camera->Get_ModelMatrix();
+    }
+    else{
+        const Viewport& viewport = _viewports.at( _recentlyInteractedViewport );
+        return viewport.camera->Get_ModelMatrix();
+    }   
+}
+
+glm::mat4
+Nova::ViewportManager::GetInteractionProjectionMatrix() const {
+    if( _focused ){
+        const Viewport& viewport = _viewports.at( _focusedViewport );
+        return viewport.camera->Get_ProjectionMatrix();
+    }
+    else{
+        const Viewport& viewport = _viewports.at( _recentlyInteractedViewport );
+        return viewport.camera->Get_ProjectionMatrix();
+    }  
+}
+
+glm::vec4
+Nova::ViewportManager::GetInteractionViewport() const {
+    if( _focused ){
+        const Viewport& viewport = _viewports.at( _focusedViewport );
+        return glm::vec4( viewport.x, viewport.y, viewport.width, viewport.height );
+    }
+    else{
+        const Viewport& viewport = _viewports.at( _recentlyInteractedViewport );
+        return glm::vec4( viewport.x, viewport.y, viewport.width, viewport.height );
+    }  
 }
 
 void
