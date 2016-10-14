@@ -119,8 +119,8 @@ Nova::ViewportManager::ConfigureViewports( ViewportConfiguration vc ){
             viewport.y = 0;
             viewport.width  = _geometry.x;
             viewport.height = _geometry.y;
-            viewport.clipNear = 0.1f;
-            viewport.clipFar = 100.0f;
+            viewport.clipNear = 0.001f;
+            viewport.clipFar = 10000.0f;
             viewport.camera = std::unique_ptr<Camera>( new Camera() );
             viewport.camera->Set_Mode(FREE);
             viewport.camera->Set_FOV(45);
@@ -139,8 +139,8 @@ Nova::ViewportManager::ConfigureViewports( ViewportConfiguration vc ){
                 viewport.y = 0;
                 viewport.width  = _geometry.x/2;
                 viewport.height = _geometry.y;
-                viewport.clipNear = 0.1f;
-                viewport.clipFar = 100.0f;
+                viewport.clipNear = 0.001f;
+                viewport.clipFar = 10000.0f;
                 viewport.camera = std::unique_ptr<Camera>( new Camera() );
                 viewport.camera->Set_Mode(FREE);
                 viewport.camera->Set_FOV(45);
@@ -154,8 +154,8 @@ Nova::ViewportManager::ConfigureViewports( ViewportConfiguration vc ){
                 viewport.y = 0;
                 viewport.width  = _geometry.x/2;
                 viewport.height = _geometry.y;
-                viewport.clipNear = 0.1f;
-                viewport.clipFar = 100.0f;
+                viewport.clipNear = 0.001f;
+                viewport.clipFar = 10000.0f;
                 viewport.camera = std::unique_ptr<Camera>( new Camera() );
                 viewport.camera->Set_Mode(FREE);
                 viewport.camera->Set_FOV(45);

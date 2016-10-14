@@ -289,15 +289,19 @@ void Nova::OrbitCameraControl::rotateUp( float angle ) {
 
  void Nova::OrbitCameraControl::panLeft( float distance, glm::mat4 objectMatrix ){
      glm::vec3 v;    
-     v = glm::vec3(glm::column( objectMatrix, 0 )); // get X column of objectMatrix
-     v *= (-distance);
+     //v = glm::vec3(glm::column( objectMatrix, 0 )); // get X column of objectMatrix
+     //v *= (-distance);
+     glm::vec3 translation_x = glm::vec3( -distance, 0, 0);
+     v = glm::inverse( glm::mat3(objectMatrix) ) * translation_x;
      panOffset += v;    
 }
 
 void Nova::OrbitCameraControl::panUp( float distance, glm::mat4 objectMatrix ){
     glm::vec3 v;    
-    v = glm::vec3(glm::column( objectMatrix, 1 )); // get Y column of objectMatrix
-    v *= (distance);
+    //v = glm::vec3(glm::column( objectMatrix, 1 )); // get Y column of objectMatrix
+    //v *= (distance);
+    glm::vec3 translation_y = glm::vec3( 0, distance, 0 );
+     v = glm::inverse( glm::mat3(objectMatrix) ) * translation_y;
     panOffset += v;    
 }
 
@@ -314,8 +318,8 @@ void Nova::OrbitCameraControl::pan( float deltaX, float deltaY ){
         targetDistance *= glm::tan( ( GetCamera().Get_FOV() / 2 ) * glm::pi<float>() / 180.0 );
         
         // we actually don't use screenWidth, since perspective camera is fixed to screen height
-        panLeft( 2 * deltaX * targetDistance / screen.height, GetCamera().Get_ModelMatrix());
-        panUp( 2 * deltaY * targetDistance / screen.height, GetCamera().Get_ModelMatrix());
+        panLeft( 2 * deltaX * targetDistance / screen.height, GetCamera().Get_ViewMatrix());
+        panUp( 2 * deltaY * targetDistance / screen.height, GetCamera().Get_ViewMatrix());
         
     } else if ( GetCamera().Get_Mode() == ORTHO  ) {
         std::array<float,6> ortho_coords = GetCamera().Get_Ortho_Box();

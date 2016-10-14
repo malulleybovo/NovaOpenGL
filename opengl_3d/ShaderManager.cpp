@@ -196,7 +196,7 @@ Nova::ShaderManager::LoadFromString( const char* vertex_shader,
         glGetShaderiv(geometry,GL_COMPILE_STATUS,&success);
         if(!success)
             {
-                glGetShaderInfoLog(fragment,512,NULL,info_log);
+                glGetShaderInfoLog(geometry,512,NULL,info_log);
                 std::cout<<"Error::Shader::Geometry::Compilation Failed!"<<std::endl<<info_log<<std::endl;
                 return 0;
             }

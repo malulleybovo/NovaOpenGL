@@ -59,6 +59,11 @@ tokenize( std::string str ){
 void
 Nova::Scene::Configure( std::string path ){
 
+    for( auto plugin : _app.GetConfig().pluginList ){
+      _app.GetPluginManager().LoadPlugin( plugin );
+    }    
+
+
     _path = path;
 
     fs::path config_path;
@@ -78,9 +83,6 @@ Nova::Scene::Configure( std::string path ){
     store( results, vm );
     notify(vm);        
 
-    for( auto plugin : _app.GetConfig().pluginList ){
-      _app.GetPluginManager().LoadPlugin( plugin );
-    }    
 }
 
 void
