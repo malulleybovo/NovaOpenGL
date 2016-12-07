@@ -4,6 +4,8 @@
 #include "shaders/BasicMeshShader.h"
 #include "shaders/BasicLineShader.h"
 #include "shaders/BasicTextShader.h"
+#include "shaders/ViewportChromeShader.h"
+#include "shaders/ViewportAxisShader.h"
 
 
 // Done                        //
@@ -18,35 +20,24 @@ Nova::ShaderManager::ShaderManager(ApplicationFactory& app) : _app(app)
     // Need to populate the Built-in Shader maps. 
     // These shaders are compiled in and never change
 
-    {
-        unsigned int id = LoadFromString(NovaBuiltinShaders::BasicMeshShader::vertex_shader, 
-                                         NovaBuiltinShaders::BasicMeshShader::fragment_shader, 
-                                         NovaBuiltinShaders::BasicMeshShader::geometry_shader);
-        assert( id );
-        std::string name( NovaBuiltinShaders::BasicMeshShader::name );
-        _shaderRepo.insert( std::make_pair( name , id ) );
+#define LOAD_BUILTIN_SHADER( NAME )  {\
+        unsigned int id = LoadFromString(NovaBuiltinShaders::NAME::vertex_shader,\
+                                         NovaBuiltinShaders::NAME::fragment_shader,\
+                                         NovaBuiltinShaders::NAME::geometry_shader);\
+        assert( id );\
+        std::string name( NovaBuiltinShaders::NAME::name );\
+        _shaderRepo.insert( std::make_pair( name , id ) );\
     }
 
-    {
-        unsigned int id = LoadFromString(NovaBuiltinShaders::BasicLineShader::vertex_shader, 
-                                         NovaBuiltinShaders::BasicLineShader::fragment_shader, 
-                                         NovaBuiltinShaders::BasicLineShader::geometry_shader);
-        assert( id );
-        std::string name( NovaBuiltinShaders::BasicLineShader::name );
+    LOAD_BUILTIN_SHADER( BasicMeshShader );
+    LOAD_BUILTIN_SHADER( BasicLineShader );
+    LOAD_BUILTIN_SHADER( BasicTextShader );
+    LOAD_BUILTIN_SHADER( ViewportChromeShader );
+    LOAD_BUILTIN_SHADER( ViewportAxisShader );
 
-        _shaderRepo.insert( std::make_pair( name, id ) );
-    }
+#undef LOAD_BUILTIN_SHADER
 
-    {
-        unsigned int id = LoadFromString(NovaBuiltinShaders::BasicTextShader::vertex_shader, 
-                                         NovaBuiltinShaders::BasicTextShader::fragment_shader, 
-                                         NovaBuiltinShaders::BasicTextShader::geometry_shader);
-        assert( id );
-        std::string name( NovaBuiltinShaders::BasicTextShader::name );
-
-        _shaderRepo.insert( std::make_pair( name, id ) );
-    }
-
+    
 }
 
 Nova::ShaderManager::~ShaderManager() 
@@ -205,7 +196,7 @@ Nova::ShaderManager::LoadFromString( const char* vertex_shader,
         glGetShaderiv(geometry,GL_COMPILE_STATUS,&success);
         if(!success)
             {
-                glGetShaderInfoLog(fragment,512,NULL,info_log);
+                glGetShaderInfoLog(geometry,512,NULL,info_log);
                 std::cout<<"Error::Shader::Geometry::Compilation Failed!"<<std::endl<<info_log<<std::endl;
                 return 0;
             }

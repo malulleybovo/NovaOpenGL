@@ -38,14 +38,14 @@ void
 Nova::PluginManager::LoadPlugin( std::string name ){
   auto res = _plugins.find( name );
   if( res == _plugins.end() ){
-    std::cout << "Requested plugin '"<< name << "' not loaded. Searching for plugin." << std::endl;
+      //std::cout << "Requested plugin '"<< name << "' not loaded. Searching for plugin." << std::endl;
     
     for( auto p : _search_paths ){
       fs::path potential_path;
       potential_path /= p;
       potential_path /= name;
       
-      std::cout << "Trying to load '" << potential_path.native() << "'"<< std::endl;
+      //std::cout << "Trying to load '" << potential_path.native() << "'"<< std::endl;
 
       std::unique_ptr<Plugin> newPlugin;
       // First try to load the plugin
@@ -53,7 +53,7 @@ Nova::PluginManager::LoadPlugin( std::string name ){
 	newPlugin = std::unique_ptr<Plugin>( new Plugin(potential_path.native()) );
       }
       catch( std::exception& e ){
-	std::cout << "Plugin failed to load: " << e.what() << std::endl;
+          std::cout << "Plugin '"<< potential_path.native() <<"' failed to load: " << e.what() << std::endl;
 	continue;
       }
       
@@ -65,7 +65,7 @@ Nova::PluginManager::LoadPlugin( std::string name ){
 
       // Register the plugin and add it to the list
       newPlugin->registerPlugin( _app );
-      
+      std::cout << "Plugin " << name << " was loaded successfully." << std::endl;
       _plugins.insert( std::make_pair( name, std::move(newPlugin) ) );
       return;
     }

@@ -23,7 +23,9 @@ Nova::TrackballCameraControl::TrackballCameraControl( Camera& camera ) : BASE( c
     keys = { IOEvent::KEY_A, IOEvent::KEY_W,  IOEvent::KEY_D };
     _state = NONE;
     _prevState = NONE;
-    
+    position0 = glm::vec3(0,0,0);
+    target0 = glm::vec3(0,0,-1);
+    up0 = glm::vec3(0,1,0);
 }
 
 glm::vec2 Nova::TrackballCameraControl::getMouseOnCircle( const glm::vec2& pos ){
@@ -120,8 +122,8 @@ void Nova::TrackballCameraControl::KeyHold(const Nova::IOEvent& event) {
 };
 
 void Nova::TrackballCameraControl::Redraw(const Nova::IOEvent& event) {
-    screen.left = 0;
-    screen.top = 0;
+    screen.left = event.draw_data->x;
+    screen.top = event.draw_data->y;
     screen.width = event.draw_data->width;
     screen.height = event.draw_data->height;
 };

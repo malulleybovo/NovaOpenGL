@@ -36,8 +36,13 @@ uniform mat4 projection;
 
 void main()
 {
+    mat3 textureFlip;
+    textureFlip[0] = vec3( 1,  0, 0);
+    textureFlip[1] = vec3( 0, -1, 0);
+    textureFlip[2] = vec3( 0,  0, 0);
+
     gl_Position=projection*view*model*vec4(position,1.0f);
-    TexCoord=tex_coord;
+    TexCoord=(textureFlip*vec3(tex_coord,0)).rg;
 }
 )lang::GLSL";
         static constexpr char const * geometry_shader = nullptr;

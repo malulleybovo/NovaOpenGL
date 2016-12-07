@@ -33,6 +33,7 @@ Nova::Config::Parse(const std::vector<std::string>& paths, int argc, char** argv
     po::options_description config("Configuration");
     config.add_options()
         ("Bind", po::value<std::vector<std::string> >(&bindings)->default_value(std::vector<std::string>(), ""), "Bindings to add to the Keybinding map." )
+        ("Plugin", po::value<std::vector<std::string> >(&pluginList), "a list of plugins to load")
         ;
         
     // Hidden options, will be allowed both on command line and

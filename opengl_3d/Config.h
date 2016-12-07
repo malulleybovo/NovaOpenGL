@@ -14,6 +14,7 @@ namespace Nova {
         std::string scenepath;
         std::vector<std::string> pluginpaths;
         std::vector<std::string> bindings;
+        std::vector<std::string> pluginList;
         std::string fontname;
     };
 }

@@ -59,16 +59,19 @@ tokenize( std::string str ){
 void
 Nova::Scene::Configure( std::string path ){
 
+    for( auto plugin : _app.GetConfig().pluginList ){
+      _app.GetPluginManager().LoadPlugin( plugin );
+    }    
+
+
     _path = path;
 
     fs::path config_path;
     config_path /= path;
     config_path /= "scene.conf";
 
-    std::vector<std::string> pluginList;
     po::options_description config("Configuration");
     config.add_options()
-      ("Plugin", po::value<std::vector<std::string> >(&pluginList), "a list of plugins to load")
         ;
     
     std::ifstream ifs(config_path.c_str());
@@ -80,9 +83,6 @@ Nova::Scene::Configure( std::string path ){
     store( results, vm );
     notify(vm);        
 
-    for( auto plugin : pluginList ){
-      _app.GetPluginManager().LoadPlugin( plugin );
-    }    
 }
 
 void
@@ -173,10 +173,10 @@ Nova::Scene::Selection( IOEvent& event )
     // Build Hit Test line
 
     glm::vec3 mouse_position;
-    glm::mat4 view = _app.GetWorld().Get_ViewMatrix();
-    glm::mat4 model = _app.GetWorld().Get_ModelMatrix();
-    glm::mat4 projection = _app.GetWorld().Get_ProjectionMatrix();
-    glm::vec4 viewport = _app.GetWorld().Get_Viewport();
+    glm::mat4 view = _app.GetWorld().Get_ViewMatrix(World::INTERACTION);
+    glm::mat4 model = _app.GetWorld().Get_ModelMatrix(World::INTERACTION);
+    glm::mat4 projection = _app.GetWorld().Get_ProjectionMatrix(World::INTERACTION);
+    glm::vec4 viewport = _app.GetWorld().Get_Viewport(World::INTERACTION);
 
     mouse_position.x = event.mousebutton_data->x;
     mouse_position.y = (viewport[3] - event.mousebutton_data->y); // Fix the Y direction

@@ -35,7 +35,7 @@ Nova::TextureManager::GetOpenGLTexture( std::string name ){
                     return GetMissingTexture();
                 }
 
-                unsigned char* pixels = new unsigned char[ width*height*channels ];
+                unsigned char* pixels = new unsigned char[ width*height*depth*channels ];
                 _textureProvider->TextureData( name, pixels );
                 
                 GLuint texture_id;

@@ -16,11 +16,13 @@ add_library( opengl_3d_kernel
   OrbitCameraControl.cpp
   TrackballCameraControl.cpp
   TextureManager.cpp
+  ViewportManager.cpp
   )
 
 pkg_check_modules (glfw3 REQUIRED glfw3)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(GLM REQUIRED)
 
 set( USE_C11_REGEX OFF CACHE BOOL "Use regular expressions from the c++11 standard library, otherwise use Boost." )
 
@@ -39,6 +41,9 @@ if(UNIX)
   target_compile_definitions(opengl_3d_kernel PUBLIC OPENGL_3D_LINUX=1)
 endif()
 
+target_include_directories( opengl_3d_kernel PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include> )
 
 target_link_libraries( opengl_3d_kernel
   ${Boost_LIBRARIES}

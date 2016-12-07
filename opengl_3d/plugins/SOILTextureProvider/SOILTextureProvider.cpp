@@ -42,8 +42,8 @@ namespace Nova {
             unsigned char* pixels = SOIL_load_image(name.c_str(),&width,&height,0,SOIL_LOAD_RGB);
             w = width;
             h = height;
-            d = 1;
-            c = 3;            
+            d = 1; // SOIL doesn't handle 3D textures
+            c = 3; // We are forcing RGB mode wo/Alpha           
         };
 
         virtual void TextureData( std::string name, unsigned char* pixels) {
